@@ -7,21 +7,33 @@ set -e
 # Get current date components
 YEAR=$(date +%Y)
 MONTH=$(date +%m)
-BUILD_NUMBER=$(git rev-list --count HEAD)
 
-# Create version string
-VERSION="${YEAR}.${MONTH}.${BUILD_NUMBER}"
+# Get current build number from Info.plist
+INFO_PLIST="Coreveo/Resources/Info.plist"
+if [ -f "$INFO_PLIST" ]; then
+    CURRENT_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$INFO_PLIST" 2>/dev/null || echo "0")
+else
+    CURRENT_BUILD="0"
+fi
+
+# Increment build number
+BUILD_NUMBER=$((10#$CURRENT_BUILD + 1))
+
+# Format build number with leading zero (2 digits)
+BUILD_NUMBER_FORMATTED=$(printf "%02d" $BUILD_NUMBER)
+VERSION="${YEAR}.${MONTH}.${BUILD_NUMBER_FORMATTED}"
 
 echo "🏷️  Coreveo Version Management"
 echo "================================"
 echo "Year: ${YEAR}"
 echo "Month: ${MONTH}"
-echo "Build Number: ${BUILD_NUMBER}"
+echo "Previous Build: ${CURRENT_BUILD}"
+echo "New Build Number: ${BUILD_NUMBER_FORMATTED}"
 echo "Version: ${VERSION}"
 echo ""
 
 # Check if Info.plist exists
-INFO_PLIST="Coreveo/Info.plist"
+INFO_PLIST="Coreveo/Resources/Info.plist"
 if [ ! -f "$INFO_PLIST" ]; then
     echo "❌ Error: Info.plist not found at $INFO_PLIST"
     echo "Please run this script from the project root directory."
@@ -33,8 +45,8 @@ echo "📝 Updating CFBundleShortVersionString to ${VERSION}..."
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${VERSION}" "$INFO_PLIST"
 
 # Update CFBundleVersion (Build Number)
-echo "📝 Updating CFBundleVersion to ${BUILD_NUMBER}..."
-/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER}" "$INFO_PLIST"
+echo "📝 Updating CFBundleVersion to ${BUILD_NUMBER_FORMATTED}..."
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${BUILD_NUMBER_FORMATTED}" "$INFO_PLIST"
 
 # Verify the changes
 echo ""
