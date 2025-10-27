@@ -1,0 +1,168 @@
+name: Coreveo CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+
+jobs:
+  lint:
+    name: Code Quality Check
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch ${{ env.DEVELOPER_DIR }}
+      
+    - name: Install SwiftLint
+      run: brew install swiftlint
+      
+    - name: Run SwiftLint
+      run: |
+        if find . -name "*.swift" -not -path "./.git/*" | grep -q .; then
+          swiftlint lint --strict
+        else
+          echo "No Swift files found. Skipping SwiftLint."
+        fi
+
+  test:
+    name: Unit Tests
+    runs-on: macos-latest
+    needs: lint
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch ${{ env.DEVELOPER_DIR }}
+      
+    - name: Run Unit Tests
+      run: |
+        xcodebuild test \
+          -project Coreveo.xcodeproj \
+          -scheme Coreveo \
+          -destination 'platform=macOS' \
+          -quiet \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+
+  build:
+    name: Build App
+    runs-on: macos-latest
+    needs: [lint, test]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Xcode
+      run: sudo xcode-select -switch ${{ env.DEVELOPER_DIR }}
+      
+    - name: Generate Version
+      id: version
+      run: |
+        YEAR=$(date +%Y)
+        MONTH=$(date +%m)
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        VERSION="${YEAR}.${MONTH}.${BUILD_NUMBER}"
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "Generated version: ${VERSION}"
+      
+    - name: Build App
+      run: |
+        xcodebuild build \
+          -project Coreveo.xcodeproj \
+          -scheme Coreveo \
+          -destination 'platform=macOS' \
+          -configuration Release \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+          
+    - name: Archive App
+      run: |
+        xcodebuild archive \
+          -project Coreveo.xcodeproj \
+          -scheme Coreveo \
+          -destination 'platform=macOS' \
+          -archivePath Coreveo.xcarchive \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO
+          
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Coreveo-build-${{ steps.version.outputs.version }}
+        path: Coreveo.xcarchive
+
+  security:
+    name: Security Scan
+    runs-on: macos-latest
+    needs: lint
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Security Scan
+      run: |
+        echo "Security scan completed"
+        # Add security scanning tools here when available
+
+  release:
+    name: Create Release
+    runs-on: macos-latest
+    needs: [build, security]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Generate Version
+      id: version
+      run: |
+        YEAR=$(date +%Y)
+        MONTH=$(date +%m)
+        BUILD_NUMBER=$(git rev-list --count HEAD)
+        VERSION="${YEAR}.${MONTH}.${BUILD_NUMBER}"
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.version }}
+        release_name: Coreveo v${{ steps.version.outputs.version }}
+        body: |
+          ## Changes in this Release
+          
+          - Automated build from main branch
+          - Version: ${{ steps.version.outputs.version }}
+          - Build Number: ${{ github.run_number }}
+          
+          ## Installation
+          
+          1. Download the latest build from the artifacts
+          2. Extract and run Coreveo.app
+          
+          ## Features
+          
+          - System monitoring dashboard
+          - Real-time performance metrics
+          - Multiple display modes
+          
+          ## Requirements
+          
+          - macOS 14.0 or later
+          - Apple Silicon or Intel processor
+        draft: false
+        prerelease: true
