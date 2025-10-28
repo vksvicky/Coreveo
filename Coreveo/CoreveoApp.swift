@@ -51,15 +51,15 @@ struct CoreveoApp: App {
 /// App delegate for handling macOS-specific functionality
 class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Hide dock icon when running as menu bar app
-        NSApp.setActivationPolicy(.accessory)
+        // Set as regular app (not menu bar only)
+        NSApp.setActivationPolicy(.regular)
         
         // Request necessary permissions
         requestPermissions()
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        return false // Keep app running in menu bar
+        return true // Quit app when all windows are closed
     }
     
     private func requestPermissions() {

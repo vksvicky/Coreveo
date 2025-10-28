@@ -1,6 +1,6 @@
 #!/bin/bash
 # Coreveo Build Script
-# Compiles the Swift package and updates build version in Info.plist
+# Compiles the Xcode project and updates build version in Info.plist
 
 clear
 echo "🏗️  Coreveo Build Script"
@@ -13,12 +13,18 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 echo "📁 Project Directory: $PROJECT_DIR"
 cd "$PROJECT_DIR"
 
+# Check if Xcode project exists
+if [ ! -f "Coreveo.xcodeproj/project.pbxproj" ]; then
+    echo "❌ Error: Xcode project not found. Please run from Coreveo project root."
+    exit 1
+fi
+
 # Generate version number
 YEAR=$(date +%Y)
 MONTH=$(date +%m)
 
 # Get current build number from Info.plist
-INFO_PLIST="Coreveo/Resources/Info.plist"
+INFO_PLIST="Coreveo/Info.plist"
 if [ -f "$INFO_PLIST" ]; then
     CURRENT_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$INFO_PLIST" 2>/dev/null || echo "0")
 else
@@ -37,7 +43,7 @@ echo "📝 Previous Build: $CURRENT_BUILD"
 echo "📝 New Build Number: $BUILD_NUMBER_FORMATTED"
 
 # Update Info.plist with version
-INFO_PLIST="Coreveo/Resources/Info.plist"
+INFO_PLIST="Coreveo/Info.plist"
 if [ -f "$INFO_PLIST" ]; then
     echo "📝 Updating Info.plist..."
     
@@ -55,11 +61,11 @@ fi
 
 # Clean previous build
 echo "🧹 Cleaning previous build..."
-swift package clean
+xcodebuild -project Coreveo.xcodeproj -scheme Coreveo clean
 
 # Build the project
 echo "🔨 Building Coreveo..."
-if swift build --configuration release; then
+if xcodebuild -project Coreveo.xcodeproj -scheme Coreveo -configuration Release build; then
     echo "✅ Build completed successfully!"
     echo ""
     echo "📊 Build Summary:"
@@ -69,6 +75,9 @@ if swift build --configuration release; then
     echo "   Bundle ID: club.cycleruncode.Coreveo"
     echo ""
     echo "🎉 Coreveo is ready!"
+    echo ""
+    echo "📱 App location:"
+    echo "   $(xcodebuild -project Coreveo.xcodeproj -scheme Coreveo -configuration Release -showBuildSettings | grep -E '^[[:space:]]*BUILT_PRODUCTS_DIR' | head -1 | sed 's/.*= //')Coreveo.app"
 else
     echo "❌ Build failed!"
     exit 1

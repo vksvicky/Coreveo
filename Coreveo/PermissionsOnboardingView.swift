@@ -1,6 +1,8 @@
 import SwiftUI
 import AppKit
 import ApplicationServices
+import SystemConfiguration
+import Darwin
 
 struct PermissionsOnboardingView: View {
     @Binding var showMainApp: Bool
@@ -83,11 +85,11 @@ struct PermissionsOnboardingView: View {
             icon: "person.crop.circle",
             color: .blue,
             instructions: [
-                "1. Click 'Request Permission' button below",
-                "2. Grant access in the system dialog",
-                "3. Or manually go to System Settings",
-                "4. Privacy & Security → Accessibility",
-                "5. Add Coreveo to the list"
+                "Click 'Request Permission' button below",
+                "Grant access in the system dialog",
+                "Or manually go to System Settings",
+                "Privacy & Security → Accessibility",
+                "Add Coreveo to the list"
             ]
         ),
         PermissionItem(
@@ -96,11 +98,11 @@ struct PermissionsOnboardingView: View {
             icon: "externaldrive.fill",
             color: .orange,
             instructions: [
-                "1. Open System Settings",
-                "2. Go to Privacy & Security",
-                "3. Select Full Disk Access",
-                "4. Click the + button",
-                "5. Add Coreveo to the list"
+                "Open System Settings",
+                "Go to Privacy & Security",
+                "Select Full Disk Access",
+                "Click the + button",
+                "Add Coreveo to the list"
             ]
         ),
         PermissionItem(
@@ -109,11 +111,11 @@ struct PermissionsOnboardingView: View {
             icon: "network",
             color: .purple,
             instructions: [
-                "1. Open System Settings",
-                "2. Go to Privacy & Security",
-                "3. Select Network Extensions",
-                "4. Click the + button",
-                "5. Add Coreveo to the list"
+                "Open System Settings",
+                "Go to Privacy & Security",
+                "Select Network Extensions",
+                "Enable the Coreveo toggle",
+                "If Coreveo isn’t listed: close Coreveo, relaunch, then press Request"
             ]
         )
     ]
@@ -169,8 +171,12 @@ struct PermissionsOnboardingView: View {
                         permission: permissions[currentStep],
                         isGranted: getPermissionStatus(for: currentStep),
                         currentStep: currentStep,
+                        networkNotRequired: networkPermissionNotRequired(),
                         onCheckPermission: {
                             checkPermissionStatus(for: currentStep)
+                        },
+                        onOpenSystemSettings: {
+                            openSystemSettings()
                         },
                         onNext: {
                             if currentStep < permissions.count - 1 {
@@ -301,21 +307,162 @@ struct PermissionsOnboardingView: View {
         networkAccessGranted = checkNetworkPermission()
     }
     
+    private func openSystemSettings() {
+        // Always bring our app to front before prompting/opening settings
+        DispatchQueue.main.async {
+            NSApp.activate(ignoringOtherApps: true)
+        }
+
+        switch currentStep {
+        case 0:
+            // Accessibility: Only open System Settings, no system prompt
+            NSLog("[Onboarding] Opening Accessibility settings for: \(Bundle.main.bundleIdentifier ?? "unknown")")
+            
+            // Deep-link directly to the Accessibility privacy pane
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                NSWorkspace.shared.open(url)
+                bringSystemSettingsToFront()
+            } else if let fallback = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy") {
+                NSWorkspace.shared.open(fallback)
+                bringSystemSettingsToFront()
+            }
+
+            // Re-check status after a delay to allow user interaction
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.checkPermissionStatus(for: 0)
+            }
+
+        case 1:
+            // Full Disk Access pane
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
+                NSWorkspace.shared.open(url)
+                bringSystemSettingsToFront()
+            } else if let fallback = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy") {
+                NSWorkspace.shared.open(fallback)
+                bringSystemSettingsToFront()
+            }
+
+        case 2:
+            // Network Extensions pane
+            if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_NetworkExtensions") {
+                NSWorkspace.shared.open(url)
+                bringSystemSettingsToFront()
+            } else if let fallback = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy") {
+                NSWorkspace.shared.open(fallback)
+                bringSystemSettingsToFront()
+            }
+
+            // Re-check status after a short delay
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.checkPermissionStatus(for: 2)
+            }
+
+        default:
+            break
+        }
+    }
+
+    private func bringSystemSettingsToFront() {
+        // Give System Settings a brief moment to launch/open the pane
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            let candidateBundleIds = [
+                "com.apple.systempreferences", // Most macOS versions
+                "com.apple.systemsettings"     // Fallback (some reports for Ventura+)
+            ]
+
+            for bundleId in candidateBundleIds {
+                if let app = NSRunningApplication.runningApplications(withBundleIdentifier: bundleId).first {
+                    let activated = app.activate(options: [])
+                    NSLog("[Onboarding] Activated System Settings (\(bundleId)): \(activated)")
+                    if activated { return }
+                }
+            }
+            NSLog("[Onboarding] System Settings activation attempt completed (may already be foreground)")
+        }
+    }
+    
     private func checkAccessibilityPermission() -> Bool {
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
         return AXIsProcessTrustedWithOptions(options as CFDictionary)
     }
     
     private func checkFullDiskAccessPermission() -> Bool {
-        // Check if we can access system files - this is a simplified check
-        // In reality, Full Disk Access is harder to detect programmatically
-        return false // Default to false since we can't reliably detect it
+        let protectedPaths = [
+            "/Library/Application Support/com.apple.TCC/TCC.db",
+            NSHomeDirectory() + "/Library/Safari/History.db",
+            "/Library/Preferences/com.apple.TimeMachine.plist"
+        ]
+
+        // Try to actually open and read a byte from protected files.
+        for path in protectedPaths {
+            if let handle = FileHandle(forReadingAtPath: path) {
+                do {
+                    _ = try handle.read(upToCount: 1)
+                    try handle.close()
+                    NSLog("[Onboarding] Full Disk Access: Successfully read from \(path)")
+                    return true
+                } catch {
+                    NSLog("[Onboarding] Full Disk Access: Failed to read from \(path) - \(error.localizedDescription)")
+                }
+            } else {
+                NSLog("[Onboarding] Full Disk Access: Cannot open \(path)")
+            }
+        }
+
+        NSLog("[Onboarding] Full Disk Access: No protected files readable")
+        return false
     }
     
     private func checkNetworkPermission() -> Bool {
-        // Network permissions are typically not required for basic network monitoring
-        // This is more about network extensions which we're not using
-        return false // Default to false - user must manually grant if needed
+        // If the app does NOT bundle any Network Extension (app extensions or system extensions),
+        // then no special permission is required on macOS 14+ for basic network monitoring.
+        // In that case, treat as granted so the user is not blocked unnecessarily.
+
+        let fileManager = FileManager.default
+        var hasNetworkExtensions = false
+
+        // Check for built-in app extensions (e.g., Packet Tunnel, Content Filter, etc.)
+        if let pluginsURL = Bundle.main.builtInPlugInsURL,
+           let pluginItems = try? fileManager.contentsOfDirectory(at: pluginsURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) {
+            if pluginItems.contains(where: { $0.pathExtension == "appex" }) {
+                hasNetworkExtensions = true
+            }
+        }
+
+        // Check for system extensions inside the app bundle
+        let systemExtensionsPath = (Bundle.main.bundlePath as NSString).appendingPathComponent("Contents/Library/SystemExtensions")
+        if fileManager.fileExists(atPath: systemExtensionsPath) {
+            hasNetworkExtensions = true
+        }
+
+        // If we don't ship any NE components, permission is not applicable → treat as granted
+        if !hasNetworkExtensions {
+            return true
+        }
+
+        // If we do ship NE components, we cannot reliably query enablement state without
+        // using the specific NE APIs and entitlements. Guide user to enable it in Settings.
+        return false
+    }
+
+    private func networkPermissionNotRequired() -> Bool {
+        // Mirrors the logic in checkNetworkPermission that decides if NE components exist
+        let fileManager = FileManager.default
+        var hasNetworkExtensions = false
+
+        if let pluginsURL = Bundle.main.builtInPlugInsURL,
+           let pluginItems = try? fileManager.contentsOfDirectory(at: pluginsURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) {
+            if pluginItems.contains(where: { $0.pathExtension == "appex" }) {
+                hasNetworkExtensions = true
+            }
+        }
+
+        let systemExtensionsPath = (Bundle.main.bundlePath as NSString).appendingPathComponent("Contents/Library/SystemExtensions")
+        if fileManager.fileExists(atPath: systemExtensionsPath) {
+            hasNetworkExtensions = true
+        }
+
+        return !hasNetworkExtensions
     }
 }
 
@@ -331,7 +478,9 @@ struct PermissionStepView: View {
     let permission: PermissionItem
     let isGranted: Bool
     let currentStep: Int
+    let networkNotRequired: Bool
     let onCheckPermission: () -> Void
+    let onOpenSystemSettings: () -> Void
     let onNext: () -> Void
     let onSkip: () -> Void
     
@@ -372,7 +521,7 @@ struct PermissionStepView: View {
                                 .foregroundColor(isGranted ? .green : .orange)
                                 .font(.title3)
                             
-                            Text(isGranted ? "Permission Granted" : "Permission Required")
+                            Text((currentStep == 2 && networkNotRequired) ? "Not Required" : (isGranted ? "Permission Granted" : "Permission Required"))
                                 .font(.body)
                                 .fontWeight(.semibold)
                                 .foregroundColor(isGranted ? .green : .orange)
@@ -429,7 +578,7 @@ struct PermissionStepView: View {
                         
                         if !isGranted {
                             Button(currentStep == 0 ? "Request Permission" : "Open System Settings") {
-                                openSystemSettings()
+                                onOpenSystemSettings()
                             }
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
@@ -442,17 +591,21 @@ struct PermissionStepView: View {
         }
     }
     
-    private func openSystemSettings() {
-        // For accessibility, we need to trigger the system dialog
-        if currentStep == 0 {
-            // Trigger accessibility permission request
-            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
-            AXIsProcessTrustedWithOptions(options as CFDictionary)
-        } else {
-            // For other permissions, open System Settings
-            let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy")!
-            NSWorkspace.shared.open(url)
-        }
+    private func checkAccessibilityPermission() -> Bool {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
+        return AXIsProcessTrustedWithOptions(options as CFDictionary)
+    }
+    
+    private func checkFullDiskAccessPermission() -> Bool {
+        // Full Disk Access is hard to detect programmatically
+        // Return false by default to show as required
+        return false
+    }
+    
+    private func checkNetworkPermission() -> Bool {
+        // Network monitoring usually works without special permissions
+        // Return false by default to show as required
+        return false
     }
 }
 

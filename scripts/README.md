@@ -5,14 +5,15 @@ This directory contains all the build, test, and development scripts for Coreveo
 ## 📋 Available Scripts
 
 ### **🏗️ build.sh**
-Builds the Coreveo project and updates version numbers.
+Builds the Xcode project and updates version numbers.
 
 **Features:**
 - Generates version number (year.month.buildnumber)
 - Updates Info.plist with version and build number
 - Cleans previous builds
-- Builds in release configuration
+- Builds Xcode project in release configuration
 - Shows build summary
+- Creates proper macOS app bundle with icons
 
 **Usage:**
 ```bash
@@ -23,8 +24,9 @@ Builds the Coreveo project and updates version numbers.
 Runs the Coreveo application (assumes it's already built).
 
 **Features:**
-- Checks if app is already built
-- Runs the built executable directly
+- Checks if Xcode project exists
+- Finds the built app bundle
+- Launches the app using `open` command
 - No building or version updates
 - Fast execution
 
@@ -78,6 +80,27 @@ Updates version numbers in Info.plist.
 ./scripts/version.sh --tag  # Also creates git tag
 ```
 
+### **🌐 build-universal.sh**
+Creates a universal macOS app bundle supporting both Intel and Apple Silicon.
+
+**Features:**
+- Builds for Intel x64 architecture
+- Builds for Apple Silicon (ARM64) architecture  
+- Creates universal binary using `lipo`
+- Supports M1, M2, M3, M4, M5 Macs
+- Creates proper .app bundle with icons
+- Creates app in `release/` folder for clean organization
+- Fixes Info.plist placeholder values
+- Shows build statistics and file sizes
+- Optionally launches the app after building
+
+**Usage:**
+```bash
+./scripts/build-universal.sh
+```
+
+**Note:** This creates a universal binary that runs natively on both Intel and Apple Silicon Macs. The app bundle is created in the `release/` folder to keep the project root clean.
+
 ## 🎯 Quick Start
 
 ### **For Development:**
@@ -112,20 +135,24 @@ Updates version numbers in Info.plist.
 ```
 Coreveo/
 ├── scripts/
-│   ├── build.sh      # Build script
-│   ├── run.sh        # Run script
-│   ├── test.sh       # Test script
-│   ├── dev.sh        # Development workflow
-│   └── version.sh    # Version management
+│   ├── build.sh           # Build script
+│   ├── run.sh             # Run script
+│   ├── dev.sh             # Development workflow
+│   ├── version.sh          # Version management
+│   └── build-universal.sh # Universal build script
 ├── Coreveo/
-│   ├── Sources/      # Swift source files
+│   ├── Sources/           # Swift source files
 │   └── Resources/
-│       └── Info.plist # App configuration
-└── CoreveoTests/     # Unit tests
+│       ├── Info.plist     # App configuration
+│       ├── Coreveo.png    # App icon
+│       └── Assets.xcassets/ # Asset catalog
+├── CoreveoTests/          # Unit tests
+└── release/               # Generated app bundles (created by build-universal.sh)
 ```
 
 ## 🔧 Requirements
 
+- **Xcode 15.0+**
 - **Swift 5.9+**
 - **macOS 14+**
 - **SwiftLint** (installed via Homebrew)

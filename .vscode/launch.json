@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Coreveo}",
+            "name": "Debug Coreveo",
+            "program": "${workspaceFolder:Coreveo}/.build/debug/Coreveo",
+            "preLaunchTask": "swift: Build Debug Coreveo"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Coreveo}",
+            "name": "Release Coreveo",
+            "program": "${workspaceFolder:Coreveo}/.build/release/Coreveo",
+            "preLaunchTask": "swift: Build Release Coreveo"
+        }
+    ]
+}
