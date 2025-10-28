@@ -7,20 +7,27 @@ struct AboutWindow: View {
     @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             // App icon and title
             VStack(spacing: 16) {
-                Image(nsImage: NSApp.applicationIconImage)
-                    .resizable()
-                    .frame(width: 80, height: 80)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                if let iconImage = NSImage(named: "AppIcon") {
+                    Image(nsImage: iconImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 80, height: 80)
+                } else {
+                    Image(nsImage: NSApp.applicationIconImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 80, height: 80)
+                }
                 
                 VStack(spacing: 4) {
                     Text("Coreveo")
                         .font(.title)
                         .fontWeight(.bold)
                     
-                    Text("Version 2025.10.1")
+                    Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "Unknown"))")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -53,7 +60,6 @@ struct AboutWindow: View {
                     ShortcutRow(keys: ["⌘", "?"], description: "Show Help")
                     ShortcutRow(keys: ["⌘", "Q"], description: "Quit Coreveo")
                     ShortcutRow(keys: ["⌘", "M"], description: "Minimize Window")
-                    ShortcutRow(keys: ["⌘", "W"], description: "Close Window")
                 }
             }
             
@@ -71,23 +77,9 @@ struct AboutWindow: View {
                 .font(.caption)
             }
             
-            // Action buttons
-            HStack(spacing: 12) {
-                Button("Check for Updates") {
-                    // TODO: Implement update checking
-                }
-                .buttonStyle(.bordered)
-                
-                Spacer()
-                
-                Button("OK") {
-                    dismiss()
-                }
-                .buttonStyle(.borderedProminent)
-            }
         }
         .padding(32)
-        .frame(width: 500, height: 600)
+        .frame(width: 500, height: 700)
         .themed()
     }
 }
@@ -161,7 +153,7 @@ class AboutWindowManager: ObservableObject {
                 .environmentObject(ThemeManager.shared)
             
             aboutWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 500, height: 600),
+                contentRect: NSRect(x: 0, y: 0, width: 500, height: 700),
                 styleMask: [.titled, .closable],
                 backing: .buffered,
                 defer: false

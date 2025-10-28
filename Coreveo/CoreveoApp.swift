@@ -53,6 +53,13 @@ struct CoreveoApp: App {
         .windowResizability(.contentSize)
         .defaultPosition(.center)
         .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button("About Coreveo") {
+                    AboutWindowManager().showAboutWindow()
+                }
+                .keyboardShortcut("?", modifiers: [])
+            }
+            
             CommandGroup(after: .appInfo) {
                 Button("Check Permissions Now") {
                     runPermissionDiagnostics()
@@ -123,7 +130,7 @@ struct CoreveoApp: App {
         } else {
             NSLog("[App] Permissions missing - showing onboarding")
             UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
-            showOnboarding = true
+                showOnboarding = true
         }
     }
     
