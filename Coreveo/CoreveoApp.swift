@@ -54,11 +54,6 @@ struct CoreveoApp: App {
         .defaultPosition(.center)
         .commands {
             CommandGroup(after: .appInfo) {
-                Button("About Coreveo") {
-                    AboutWindowManager().showAboutWindow()
-                }
-                .keyboardShortcut("?", modifiers: [])
-
                 Button("Check Permissions Now") {
                     runPermissionDiagnostics()
                 }
