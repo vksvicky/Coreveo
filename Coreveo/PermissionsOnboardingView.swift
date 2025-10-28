@@ -4,12 +4,36 @@ import ApplicationServices
 import SystemConfiguration
 import Darwin
 
+// Helper function to get the real user home directory
+private func getRealHomeDirectory() -> String? {
+    // Try multiple methods to get the real home directory
+    
+    // Method 1: Environment variable (most reliable for sandboxed apps)
+    if let homeFromEnv = ProcessInfo.processInfo.environment["HOME"] {
+        NSLog("[Onboarding] Got home from environment: \(homeFromEnv)")
+        return homeFromEnv
+    }
+    
+    // Method 2: getpwuid (fallback)
+    let uid = getuid()
+    if let pw = getpwuid(uid),
+       let homeDir = pw.pointee.pw_dir {
+        let homeFromPwuid = String(cString: homeDir)
+        NSLog("[Onboarding] Got home from getpwuid: \(homeFromPwuid)")
+        return homeFromPwuid
+    }
+    
+    NSLog("[Onboarding] ⚠️ Could not determine real home directory")
+    return nil
+}
+
 struct PermissionsOnboardingView: View {
     @Binding var showMainApp: Bool
     @State private var currentStep = 0
     @State private var accessibilityGranted = false
     @State private var fullDiskAccessGranted = false
     @State private var networkAccessGranted = false
+    @State private var isChecking = false
     
     // Helper function to load app icon
     private var appIcon: NSImage? {
@@ -107,15 +131,14 @@ struct PermissionsOnboardingView: View {
         ),
         PermissionItem(
             title: "Network Monitoring",
-            description: "Required for network speed and security monitoring",
+            description: "Optional for advanced network monitoring features",
             icon: "network",
             color: .purple,
             instructions: [
-                "Open System Settings",
-                "Go to Privacy & Security",
-                "Select Network Extensions",
-                "Enable the Coreveo toggle",
-                "If Coreveo isn’t listed: close Coreveo, relaunch, then press Request"
+                "This permission is optional for basic system monitoring",
+                "Only required if you want advanced network features",
+                "You can skip this step and enable later if needed",
+                "Basic CPU, Memory, and Disk monitoring works without this"
             ]
         )
     ]
@@ -171,9 +194,15 @@ struct PermissionsOnboardingView: View {
                         permission: permissions[currentStep],
                         isGranted: getPermissionStatus(for: currentStep),
                         currentStep: currentStep,
+                        isChecking: isChecking,
                         networkNotRequired: networkPermissionNotRequired(),
+                        accessibilityGranted: $accessibilityGranted,
                         onCheckPermission: {
-                            checkPermissionStatus(for: currentStep)
+                            // Allow TCC to settle; update on main thread, and retry briefly
+                            isChecking = true
+                            pollPermission(step: currentStep, attempts: 8, interval: 0.5) {
+                                isChecking = false
+                            }
                         },
                         onOpenSystemSettings: {
                             openSystemSettings()
@@ -206,7 +235,7 @@ struct PermissionsOnboardingView: View {
                 
                 HStack(spacing: 20) {
                     Button("Skip All") {
-                        showMainApp = false
+                        showMainApp = true
                     }
                     .buttonStyle(.bordered)
                     
@@ -214,7 +243,7 @@ struct PermissionsOnboardingView: View {
                         if currentStep < permissions.count - 1 {
                             currentStep += 1
                         } else {
-                            showMainApp = false
+                            showMainApp = true
                         }
                     }
                     .buttonStyle(.borderedProminent)
@@ -230,6 +259,10 @@ struct PermissionsOnboardingView: View {
             DispatchQueue.main.async {
                 NSApp.activate(ignoringOtherApps: true)
             }
+        }
+        // Refresh statuses when the app returns to foreground from System Settings
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            checkAllPermissions()
         }
         .onChange(of: showMainApp) {
             if showMainApp {
@@ -300,6 +333,20 @@ struct PermissionsOnboardingView: View {
             break
         }
     }
+
+    /// Poll a specific permission a fixed number of times to catch updates without relaunch
+    private func pollPermission(step: Int, attempts: Int, interval: TimeInterval, completion: @escaping () -> Void) {
+        guard attempts > 0 else { completion(); return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + interval) {
+            checkPermissionStatus(for: step)
+            let grantedNow = getPermissionStatus(for: step)
+            if grantedNow {
+                completion()
+            } else {
+                pollPermission(step: step, attempts: attempts - 1, interval: interval, completion: completion)
+            }
+        }
+    }
     
     private func checkAllPermissions() {
         accessibilityGranted = checkAccessibilityPermission()
@@ -315,21 +362,20 @@ struct PermissionsOnboardingView: View {
 
         switch currentStep {
         case 0:
-            // Accessibility: Only open System Settings, no system prompt
-            NSLog("[Onboarding] Opening Accessibility settings for: \(Bundle.main.bundleIdentifier ?? "unknown")")
+            // Accessibility: Show system prompt when explicitly requested
+            let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true]
+            _ = AXIsProcessTrustedWithOptions(options as CFDictionary)
             
-            // Deep-link directly to the Accessibility privacy pane
+            // Also open the System Settings pane to guide the user
             if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
                 NSWorkspace.shared.open(url)
                 bringSystemSettingsToFront()
-            } else if let fallback = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy") {
-                NSWorkspace.shared.open(fallback)
-                bringSystemSettingsToFront()
             }
 
-            // Re-check status after a delay to allow user interaction
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                self.checkPermissionStatus(for: 0)
+            // Start polling to reflect the change as soon as it is granted
+            isChecking = true
+            pollPermission(step: 0, attempts: 20, interval: 0.5) {
+                isChecking = false
             }
 
         case 1:
@@ -382,34 +428,103 @@ struct PermissionsOnboardingView: View {
     }
     
     private func checkAccessibilityPermission() -> Bool {
+        // For sandboxed apps, AXIsProcessTrustedWithOptions often returns false even when granted
+        // Try multiple methods to detect Accessibility permission
+        
+        // Method 1: Standard check
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
-        return AXIsProcessTrustedWithOptions(options as CFDictionary)
+        let isTrusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
+        NSLog("[Onboarding] Accessibility standard check: \(isTrusted)")
+        
+        if isTrusted {
+            return true
+        }
+        
+        // Method 2: Try to create an accessibility element (works in sandboxed apps when granted)
+        let appElement = AXUIElementCreateApplication(NSRunningApplication.current.processIdentifier)
+        var value: CFTypeRef?
+        let result = AXUIElementCopyAttributeValue(appElement, kAXRoleAttribute as CFString, &value)
+        if result == .success {
+            NSLog("[Onboarding] Accessibility element creation: SUCCESS")
+            return true
+        } else {
+            NSLog("[Onboarding] Accessibility element creation: FAILED (\(result.rawValue))")
+        }
+        
+        // Method 2b: System-wide element capability check
+        let systemWideElement = AXUIElementCreateSystemWide()
+        var focusedApp: CFTypeRef?
+        let systemWideResult = AXUIElementCopyAttributeValue(systemWideElement,
+                                                             kAXFocusedApplicationAttribute as CFString,
+                                                             &focusedApp)
+        if systemWideResult == .success {
+            NSLog("[Onboarding] Accessibility system-wide focused app: SUCCESS")
+            return true
+        } else {
+            NSLog("[Onboarding] Accessibility system-wide check failed (code \(systemWideResult.rawValue))")
+        }
+        
+        // Method 3: Check if we can access window information
+        if let windowList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) {
+            let windows = windowList as? [[String: Any]] ?? []
+            NSLog("[Onboarding] Accessibility window access: \(windows.count) windows visible")
+            // If we can see window info, we likely have accessibility
+            if windows.count > 0 {
+                return true
+            }
+        }
+        
+        NSLog("[Onboarding] Accessibility check result: false (all methods)")
+        return false
     }
     
     private func checkFullDiskAccessPermission() -> Bool {
+        NSLog("[Onboarding] Checking Full Disk Access...")
+        
+        let fileManager = FileManager.default
+        
+        // Get the REAL user home directory using getpwuid (not the sandboxed one)
+        guard let realHome = getRealHomeDirectory() else {
+            NSLog("[Onboarding] ⚠️ Could not determine real home directory")
+            return false
+        }
+        
+        NSLog("[Onboarding] Real home directory: \(realHome)")
+        NSLog("[Onboarding] Sandbox home directory: \(NSHomeDirectory())")
+        
+        // Test multiple protected paths - only need one to succeed
         let protectedPaths = [
-            "/Library/Application Support/com.apple.TCC/TCC.db",
-            NSHomeDirectory() + "/Library/Safari/History.db",
-            "/Library/Preferences/com.apple.TimeMachine.plist"
+            "\(realHome)/Library/Mail",                    // Mail data - requires FDA
+            "\(realHome)/Library/Safari",                  // Safari data - requires FDA
+            "\(realHome)/Library/Calendars",               // Calendar data - requires FDA
+            "\(realHome)/Library/Application Support/com.apple.sharedfilelist", // Shared file lists - requires FDA
+            "\(realHome)/Library/Keychains"                // Keychains - requires FDA (fallback)
         ]
-
-        // Try to actually open and read a byte from protected files.
+        
         for path in protectedPaths {
-            if let handle = FileHandle(forReadingAtPath: path) {
-                do {
-                    _ = try handle.read(upToCount: 1)
-                    try handle.close()
-                    NSLog("[Onboarding] Full Disk Access: Successfully read from \(path)")
-                    return true
-                } catch {
-                    NSLog("[Onboarding] Full Disk Access: Failed to read from \(path) - \(error.localizedDescription)")
+            NSLog("[Onboarding] Testing FDA path: \(path)")
+            
+            // Check if path exists first
+            guard fileManager.fileExists(atPath: path) else {
+                NSLog("[Onboarding]   Path doesn't exist (skipping)")
+                continue
+            }
+            
+            do {
+                let contents = try fileManager.contentsOfDirectory(atPath: path)
+                NSLog("[Onboarding] ✅ Full Disk Access GRANTED - accessed \(path) (\(contents.count) items)")
+                return true
+            } catch let error as NSError {
+                NSLog("[Onboarding]   ❌ Access denied: \(error.domain) code:\(error.code) - \(error.localizedDescription)")
+                
+                // Check for specific permission denied errors
+                if error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513) {
+                    NSLog("[Onboarding]   This is a permission denied error (expected without FDA)")
                 }
-            } else {
-                NSLog("[Onboarding] Full Disk Access: Cannot open \(path)")
             }
         }
-
-        NSLog("[Onboarding] Full Disk Access: No protected files readable")
+        
+        NSLog("[Onboarding] ❌ Full Disk Access NOT GRANTED - could not access any protected paths")
         return false
     }
     
@@ -478,7 +593,9 @@ struct PermissionStepView: View {
     let permission: PermissionItem
     let isGranted: Bool
     let currentStep: Int
+    let isChecking: Bool
     let networkNotRequired: Bool
+    @Binding var accessibilityGranted: Bool
     let onCheckPermission: () -> Void
     let onOpenSystemSettings: () -> Void
     let onNext: () -> Void
@@ -570,11 +687,15 @@ struct PermissionStepView: View {
                 // Bottom section - Action buttons
                 VStack(spacing: 12) {
                     HStack(spacing: 16) {
-                        Button("Check Again") {
-                            onCheckPermission()
+                        Button(action: { onCheckPermission() }) {
+                            HStack(spacing: 8) {
+                                if isChecking { ProgressView().scaleEffect(0.8) }
+                                Text("Check Again")
+                            }
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.large)
+                        .disabled(isChecking)
                         
                         if !isGranted {
                             Button(currentStep == 0 ? "Request Permission" : "Open System Settings") {
@@ -583,29 +704,23 @@ struct PermissionStepView: View {
                             .buttonStyle(.borderedProminent)
                             .controlSize(.large)
                         }
+                        
+                        // Add manual override for Accessibility when detection fails
+                        if currentStep == 0 && !isGranted {
+                            Button("I've Granted Permission") {
+                                // Manual override - mark as granted
+                                accessibilityGranted = true
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.regular)
+                            .font(.caption)
+                        }
                     }
                 }
                 .frame(height: geometry.size.height * 0.2)
             }
             .padding(.horizontal, 32)
         }
-    }
-    
-    private func checkAccessibilityPermission() -> Bool {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
-        return AXIsProcessTrustedWithOptions(options as CFDictionary)
-    }
-    
-    private func checkFullDiskAccessPermission() -> Bool {
-        // Full Disk Access is hard to detect programmatically
-        // Return false by default to show as required
-        return false
-    }
-    
-    private func checkNetworkPermission() -> Bool {
-        // Network monitoring usually works without special permissions
-        // Return false by default to show as required
-        return false
     }
 }
 
