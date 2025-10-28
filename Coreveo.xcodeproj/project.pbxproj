@@ -94,6 +94,7 @@
 			children = (
 				A1000001294A1234567890C0 /* Coreveo.app */,
 				A1000001294A1234567890C2 /* CoreveoTests.xctest */,
+				A1000001294A1234567890E1 /* Coreveo.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";

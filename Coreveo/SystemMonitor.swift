@@ -7,7 +7,7 @@ import SystemConfiguration
 
 /// Main system monitoring class that collects data from various macOS APIs
 @MainActor
-class SystemMonitor: ObservableObject {
+public class SystemMonitor: ObservableObject {
     // MARK: - Published Properties
     
     @Published var cpuUsage: Double = 0.0
@@ -28,7 +28,11 @@ class SystemMonitor: ObservableObject {
     
     // MARK: - Public Methods
     
-    func startMonitoring() {
+    public init() {
+        // Initialize with default values
+    }
+    
+    public func startMonitoring() {
         // Start monitoring with 1-second intervals
         monitoringTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             Task { @MainActor in
@@ -42,7 +46,7 @@ class SystemMonitor: ObservableObject {
         }
     }
     
-    func stopMonitoring() {
+    public func stopMonitoring() {
         monitoringTimer?.invalidate()
         monitoringTimer = nil
     }
