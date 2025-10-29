@@ -4,50 +4,38 @@ import ApplicationServices // For AXIsProcessTrustedWithOptions
 import CoreGraphics // For CGWindowListCopyWindowInfo
 import Darwin
 
-// Helper function to get the real user home directory
-private func getRealHomeDirectory() -> String? {
-    // Try multiple methods to get the real home directory
-    
-    // Method 1: Environment variable (most reliable for sandboxed apps)
-    if let homeFromEnv = ProcessInfo.processInfo.environment["HOME"] {
-        NSLog("[App] Got home from environment: \(homeFromEnv)")
-        return homeFromEnv
-    }
-    
-    // Method 2: getpwuid (fallback)
-    let uid = getuid()
-    if let pw = getpwuid(uid),
-       let homeDir = pw.pointee.pw_dir {
-        let homeFromPwuid = String(cString: homeDir)
-        NSLog("[App] Got home from getpwuid: \(homeFromPwuid)")
-        return homeFromPwuid
-    }
-    
-    NSLog("[App] ⚠️ Could not determine real home directory")
-    return nil
-}
-
 @main
 struct CoreveoApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var themeManager = ThemeManager.shared
     @State private var showOnboarding = true
+    
+    // Helper function to get the real user home directory
+    static func getRealHomeDirectory() -> String? {
+        // Try multiple methods to get the real home directory
+        
+        // Method 1: Environment variable (most reliable for sandboxed apps)
+        if let homeFromEnv = ProcessInfo.processInfo.environment["HOME"] {
+            NSLog("[App] Got home from environment: \(homeFromEnv)")
+            return homeFromEnv
+        }
+        
+        // Method 2: getpwuid (fallback)
+        let uid = getuid()
+        if let pw = getpwuid(uid),
+           let homeDir = pw.pointee.pw_dir {
+            let homeFromPwuid = String(cString: homeDir)
+            NSLog("[App] Got home from getpwuid: \(homeFromPwuid)")
+            return homeFromPwuid
+        }
+        
+        NSLog("[App] ⚠️ Could not determine real home directory")
+        return nil
+    }
     
     var body: some Scene {
         WindowGroup {
-            if showOnboarding {
-                PermissionsOnboardingView(showMainApp: $showOnboarding)
-                    .environmentObject(themeManager)
-                    .themed()
-                    .onAppear {
-                        checkIfOnboardingNeeded()
-                    }
-            } else {
-                ContentView()
-                    .frame(minWidth: 800, minHeight: 600)
-                    .environmentObject(themeManager)
-                    .themed()
-            }
+            ContentView()
+                .frame(minWidth: 800, minHeight: 600)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
@@ -55,52 +43,18 @@ struct CoreveoApp: App {
         .commands {
             CommandGroup(replacing: .appInfo) {
                 Button("About Coreveo") {
-                    AboutWindowManager().showAboutWindow()
+                    NSApp.orderFrontStandardAboutPanel(options: [:])
                 }
                 .keyboardShortcut("?", modifiers: [])
             }
             
             CommandGroup(after: .appInfo) {
-                Button("Check Permissions Now") {
-                    runPermissionDiagnostics()
-                }
-                .keyboardShortcut("d", modifiers: [.command, .shift])
-            }
-            
-            CommandGroup(after: .appSettings) {
                 Button("Settings...") {
-                    showSettingsWindow()
+                    appDelegate.showSettingsWindow()
                 }
                 .keyboardShortcut(",", modifiers: [.command])
             }
         }
-        
-        // Menu bar app
-        MenuBarExtra("Coreveo", systemImage: "chart.line.uptrend.xyaxis") {
-            MenuBarView()
-                .environmentObject(themeManager)
-                .themed()
-        }
-        .menuBarExtraStyle(.window)
-    }
-    
-    private func showSettingsWindow() {
-        let settingsWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 600, height: 400),
-            styleMask: [.titled, .closable, .resizable],
-            backing: .buffered,
-            defer: false
-        )
-        
-        settingsWindow.title = "Settings"
-        settingsWindow.contentView = NSHostingView(
-            rootView: SettingsView()
-                .environmentObject(themeManager)
-                .themed()
-        )
-        settingsWindow.center()
-        settingsWindow.makeKeyAndOrderFront(nil)
-        NSApp.activate(ignoringOtherApps: true)
     }
     
     private func checkIfOnboardingNeeded() {
@@ -176,7 +130,7 @@ struct CoreveoApp: App {
         let sandboxHome = NSHomeDirectory()
         NSLog("[Diag] Sandbox home: \(sandboxHome)")
         
-        let realHome = getRealHomeDirectory() ?? "unknown"
+        let realHome = CoreveoApp.getRealHomeDirectory() ?? "unknown"
         NSLog("[Diag] Real home (via getpwuid): \(realHome)")
         
         // Test each protected path individually
@@ -257,7 +211,7 @@ struct CoreveoApp: App {
             let windows = windowList as? [[String: Any]] ?? []
             NSLog("[App] Accessibility window access: \(windows.count) windows visible")
             // If we can see window info, we likely have accessibility
-            if windows.count > 0 {
+            if !windows.isEmpty {
                 NSLog("[App] ✅ Accessibility permission GRANTED (window access)")
                 return true
             }
@@ -273,7 +227,7 @@ struct CoreveoApp: App {
         let fileManager = FileManager.default
         
         // Get the REAL user home directory using getpwuid (not the sandboxed one)
-        guard let realHome = getRealHomeDirectory() else {
+        guard let realHome = CoreveoApp.getRealHomeDirectory() else {
             NSLog("[App] ⚠️ Could not determine real home directory")
             return false
         }
@@ -282,12 +236,15 @@ struct CoreveoApp: App {
         NSLog("[App] Sandbox home directory: \(NSHomeDirectory())")
         
         // Test multiple protected paths - only need one to succeed
+        // Try more reliable paths that are more likely to exist
         let protectedPaths = [
-            "\(realHome)/Library/Mail",                    // Mail data - requires FDA
+            "\(realHome)/Library/Mail/V2/MailData",       // Mail data - requires FDA (more specific)
             "\(realHome)/Library/Safari",                  // Safari data - requires FDA
             "\(realHome)/Library/Calendars",               // Calendar data - requires FDA
             "\(realHome)/Library/Application Support/com.apple.sharedfilelist", // Shared file lists - requires FDA
-            "\(realHome)/Library/Keychains"                // Keychains - requires FDA (fallback)
+            "\(realHome)/Library/Keychains",               // Keychains - requires FDA
+            "\(realHome)/Library/Application Support/com.apple.TCC", // TCC database - requires FDA
+            "/private/var/log/system.log"                   // System log - requires FDA (absolute path)
         ]
         
         for path in protectedPaths {
@@ -300,15 +257,33 @@ struct CoreveoApp: App {
             }
             
             do {
-                let contents = try fileManager.contentsOfDirectory(atPath: path)
-                NSLog("[App] ✅ Full Disk Access GRANTED - accessed \(path) (\(contents.count) items)")
-                return true
+                // Try to read directory contents or file attributes
+                var isDirectory: ObjCBool = false
+                if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
+                    if isDirectory.boolValue {
+                        let contents = try fileManager.contentsOfDirectory(atPath: path)
+                        NSLog("[App] ✅ Full Disk Access GRANTED - accessed directory \(path) (\(contents.count) items)")
+                        return true
+                    } else {
+                        // It's a file, try to read attributes
+                        _ = try fileManager.attributesOfItem(atPath: path)
+                        NSLog("[App] ✅ Full Disk Access GRANTED - accessed file \(path)")
+                        return true
+                    }
+                }
             } catch let error as NSError {
                 NSLog("[App]   ❌ Access denied: \(error.domain) code:\(error.code) - \(error.localizedDescription)")
                 
                 // Check for specific permission denied errors
-                if error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513) {
+                // NSCocoaErrorDomain 257 = NSFileReadNoPermissionError
+                // NSCocoaErrorDomain 513 = NSFileWriteNoPermissionError  
+                // NSPOSIXErrorDomain 13 = Permission denied
+                if (error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513)) ||
+                   (error.domain == NSPOSIXErrorDomain && error.code == 13) {
                     NSLog("[App]   This is a permission denied error (expected without FDA)")
+                } else {
+                    // Other errors might indicate permission denied too
+                    NSLog("[App]   Unexpected error - might indicate permission denied")
                 }
             }
         }
@@ -344,30 +319,83 @@ struct CoreveoApp: App {
         let granted = !hasNetworkExtensions ? true : false
         return granted
     }
+    
 }
 
 /// App delegate for handling macOS-specific functionality
 class AppDelegate: NSObject, NSApplicationDelegate {
+    private var settingsWindow: NSWindow?
+    private var themeObserver: NSObjectProtocol?
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Set as regular app (not menu bar only)
         NSApp.setActivationPolicy(.regular)
         
-        // Request necessary permissions
-        requestPermissions()
+        // Observe theme changes and update settings window appearance
+        themeObserver = NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("ThemeDidChange"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                self?.updateSettingsWindowAppearance()
+            }
+        }
+    }
+    
+    deinit {
+        if let observer = themeObserver {
+            NotificationCenter.default.removeObserver(observer)
+        }
     }
     
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return true // Quit app when all windows are closed
     }
     
-    private func requestPermissions() {
-        // Check accessibility permissions without prompting
-        // The onboarding screen will handle the permission request flow
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
-        let accessEnabled = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        
-        if !accessEnabled {
-            NSLog("Accessibility permissions not yet granted - will be handled by onboarding")
+    @MainActor private func updateSettingsWindowAppearance() {
+        if let window = settingsWindow {
+            window.appearance = ThemeManager.shared.getAppearance()
         }
     }
+    
+    @MainActor
+    func showSettingsWindow() {
+        // Reuse existing window if it exists
+        if let existingWindow = settingsWindow, existingWindow.isVisible {
+            existingWindow.makeKeyAndOrderFront(nil)
+            return
+        }
+        
+        let newWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 700, height: 480),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        
+        newWindow.title = "Settings"
+        // Set a fresh autosave name so old dimensions aren't restored
+        newWindow.setFrameAutosaveName("CoreveoSettingsV3")
+        // Enforce a new default frame and minimum content size
+        newWindow.setFrame(NSRect(x: 0, y: 0, width: 700, height: 480), display: false)
+        newWindow.contentMinSize = NSSize(width: 700, height: 480)
+        newWindow.center()
+        newWindow.isReleasedWhenClosed = false // Don't auto-release
+        newWindow.animationBehavior = .none
+        
+        // Use full SettingsView (shows Appearance + General)
+        let settingsView = SettingsView()
+        let hostingView = NSHostingView(rootView: settingsView)
+        newWindow.contentView = hostingView
+        
+        // Apply theme appearance
+        newWindow.appearance = ThemeManager.shared.getAppearance()
+        
+        // Store reference to prevent deallocation
+        self.settingsWindow = newWindow
+        
+        newWindow.makeKeyAndOrderFront(nil)
+    }
 }
+

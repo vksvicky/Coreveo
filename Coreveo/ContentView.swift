@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var systemMonitor = SystemMonitor()
-    @EnvironmentObject var themeManager: ThemeManager
     @State private var selectedTab = 0
     
     var body: some View {
@@ -59,12 +57,11 @@ struct ContentView: View {
                     .tag(7)
             }
         }
-        .environmentObject(systemMonitor)
         .onAppear {
-            systemMonitor.startMonitoring()
+            SystemMonitor.shared.startMonitoring()
         }
         .onDisappear {
-            systemMonitor.stopMonitoring()
+            SystemMonitor.shared.stopMonitoring()
         }
     }
 }

@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct DashboardView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         ScrollView {
             LazyVGrid(columns: [
@@ -12,48 +10,48 @@ struct DashboardView: View {
                 // CPU Card
                 SystemCard(
                     title: "CPU Usage",
-                    value: "\(Int(systemMonitor.cpuUsage))%",
+                    value: "\(Int(SystemMonitor.shared.cpuUsage))%",
                     icon: "cpu.fill",
                     color: .blue,
-                    progress: systemMonitor.cpuUsage / 100.0
+                    progress: SystemMonitor.shared.cpuUsage / 100.0
                 )
                 
                 // Memory Card
                 SystemCard(
                     title: "Memory Usage",
-                    value: "\(Int(systemMonitor.memoryUsage))%",
+                    value: "\(Int(SystemMonitor.shared.memoryUsage))%",
                     icon: "memorychip.fill",
                     color: .green,
-                    progress: systemMonitor.memoryUsage / 100.0
+                    progress: SystemMonitor.shared.memoryUsage / 100.0
                 )
                 
                 // Disk Card
                 SystemCard(
                     title: "Disk Usage",
-                    value: "\(Int(systemMonitor.diskUsage))%",
+                    value: "\(Int(SystemMonitor.shared.diskUsage))%",
                     icon: "externaldrive.fill",
                     color: .orange,
-                    progress: systemMonitor.diskUsage / 100.0
+                    progress: SystemMonitor.shared.diskUsage / 100.0
                 )
                 
                 // Network Card
                 NetworkCard(
-                    uploadSpeed: systemMonitor.networkUploadSpeed,
-                    downloadSpeed: systemMonitor.networkDownloadSpeed
+                    uploadSpeed: SystemMonitor.shared.networkUploadSpeed,
+                    downloadSpeed: SystemMonitor.shared.networkDownloadSpeed
                 )
                 
                 // Battery Card (if available)
-                if systemMonitor.batteryLevel > 0 {
+                if SystemMonitor.shared.batteryLevel > 0 {
                     BatteryCard(
-                        level: systemMonitor.batteryLevel,
-                        health: systemMonitor.batteryHealth
+                        level: SystemMonitor.shared.batteryLevel,
+                        health: SystemMonitor.shared.batteryHealth
                     )
                 }
                 
                 // Temperature Card
                 TemperatureCard(
-                    temperature: systemMonitor.temperature,
-                    fanSpeed: systemMonitor.fanSpeed
+                    temperature: SystemMonitor.shared.temperature,
+                    fanSpeed: SystemMonitor.shared.fanSpeed
                 )
             }
             .padding()
@@ -226,5 +224,4 @@ struct TemperatureCard: View {
 
 #Preview {
     DashboardView()
-        .environmentObject(SystemMonitor())
 }

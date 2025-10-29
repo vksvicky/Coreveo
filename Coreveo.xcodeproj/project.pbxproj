@@ -20,7 +20,10 @@
 		A1000001294A1234567890E2 /* PreviewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E3 /* PreviewContent.swift */; };
 		A1000001294A1234567890E5 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E6 /* ThemeManager.swift */; };
 		A1000001294A1234567890E7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E8 /* SettingsView.swift */; };
-		A1000001294A1234567890E9 /* AboutWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890EA /* AboutWindow.swift */; };
+		E2606BD72EB2683100244947 /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BD62EB2683100244947 /* SettingsComponents.swift */; };
+		E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */; };
+		E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */; };
+		E2606BE72EB268E400244947 /* PermissionsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,8 +53,13 @@
 		A1000001294A1234567890C3 /* CoreveoTestsInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CoreveoTestsInfo.plist; sourceTree = "<group>"; };
 		A1000001294A1234567890E3 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890E6 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
-		A1000001294A1234567890E8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		A1000001294A1234567890EA /* AboutWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutWindow.swift; sourceTree = "<group>"; };
+		A1000001294A1234567890E8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; tabWidth = 4; };
+		E2606BD62EB2683100244947 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
+		E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
+		E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
+		E2606BE02EB268D600244947 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
+		E2606BE12EB268D600244947 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsSettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,17 +95,22 @@
 				A1000001294A1234567890AC /* CoreveoApp.swift */,
 				A1000001294A1234567890AE /* ContentView.swift */,
 				A1000001294A1234567890B0 /* SidebarView.swift */,
+				E2606BD62EB2683100244947 /* SettingsComponents.swift */,
 				A1000001294A1234567890B2 /* MenuBarView.swift */,
 				A1000001294A1234567890B4 /* SystemMonitor.swift */,
 				A1000001294A1234567890B6 /* DashboardView.swift */,
 				A1000001294A1234567890B8 /* MonitoringViews.swift */,
+				E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */,
+				E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */,
+				E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */,
+				E2606BE02EB268D600244947 /* SettingsComponents.swift */,
+				E2606BE12EB268D600244947 /* SettingsView.swift */,
 				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
 				A1000001294A1234567890BC /* Assets.xcassets */,
 				A1000001294A1234567890C1 /* Info.plist */,
 				A1000001294A1234567890E4 /* Preview Content */,
 				A1000001294A1234567890E6 /* ThemeManager.swift */,
 				A1000001294A1234567890E8 /* SettingsView.swift */,
-				A1000001294A1234567890EA /* AboutWindow.swift */,
 			);
 			path = Coreveo;
 			sourceTree = "<group>";
@@ -229,16 +242,19 @@
 			files = (
 				A1000001294A1234567890AD /* ContentView.swift in Sources */,
 				A1000001294A1234567890AF /* SidebarView.swift in Sources */,
+				E2606BD72EB2683100244947 /* SettingsComponents.swift in Sources */,
 				A1000001294A1234567890B1 /* MenuBarView.swift in Sources */,
 				A1000001294A1234567890B3 /* SystemMonitor.swift in Sources */,
 				A1000001294A1234567890B5 /* DashboardView.swift in Sources */,
 				A1000001294A1234567890B7 /* MonitoringViews.swift in Sources */,
 				A1000001294A1234567890B9 /* PermissionsOnboardingView.swift in Sources */,
+				E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */,
+				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
 				A1000001294A1234567890AB /* CoreveoApp.swift in Sources */,
 				A1000001294A1234567890E2 /* PreviewContent.swift in Sources */,
 				A1000001294A1234567890E5 /* ThemeManager.swift in Sources */,
+				E2606BE72EB268E400244947 /* PermissionsSettingsView.swift in Sources */,
 				A1000001294A1234567890E7 /* SettingsView.swift in Sources */,
-				A1000001294A1234567890E9 /* AboutWindow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

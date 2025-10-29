@@ -39,10 +39,8 @@ class ThemeManager: ObservableObject {
     
     @Published var colorScheme: ColorScheme? {
         didSet {
-            // Update all windows when color scheme changes
-            NSApp.windows.forEach { window in
-                window.appearance = getAppearance()
-            }
+            // Just update the app appearance, don't access individual windows
+            NSApp.appearance = getAppearance()
         }
     }
     
@@ -68,10 +66,13 @@ class ThemeManager: ObservableObject {
         
         // Update app appearance
         NSApp.appearance = getAppearance()
+        
+        // Notify that theme has changed
+        NotificationCenter.default.post(name: NSNotification.Name("ThemeDidChange"), object: nil)
     }
     
     /// Get the appropriate NSAppearance for the current theme
-    private func getAppearance() -> NSAppearance? {
+    func getAppearance() -> NSAppearance? {
         switch currentTheme {
         case .system:
             return nil // Use system default
@@ -106,18 +107,5 @@ struct ThemeColors {
     static let error = Color("ErrorColor")
 }
 
-/// View modifier to apply theme-aware colors
-struct ThemedViewModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        // Use the singleton to avoid crashes when EnvironmentObject isn't injected
-        content
-            .preferredColorScheme(ThemeManager.shared.colorScheme)
-    }
-}
-
-extension View {
-    /// Apply theme-aware styling to any view
-    func themed() -> some View {
-        modifier(ThemedViewModifier())
-    }
-}
+// Removed ThemedViewModifier to avoid memory management issues
+// Views should handle their own theming through direct ThemeManager.shared access

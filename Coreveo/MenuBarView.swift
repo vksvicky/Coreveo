@@ -2,8 +2,6 @@ import SwiftUI
 import AppKit
 
 struct MenuBarView: View {
-    @StateObject private var systemMonitor = SystemMonitor()
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Header
@@ -30,26 +28,26 @@ struct MenuBarView: View {
             VStack(alignment: .leading, spacing: 4) {
                 QuickStatRow(
                     title: "CPU",
-                    value: "\(Int(systemMonitor.cpuUsage))%",
+                    value: "\(Int(SystemMonitor.shared.cpuUsage))%",
                     color: .blue
                 )
                 
                 QuickStatRow(
                     title: "Memory",
-                    value: "\(Int(systemMonitor.memoryUsage))%",
+                    value: "\(Int(SystemMonitor.shared.memoryUsage))%",
                     color: .green
                 )
                 
                 QuickStatRow(
                     title: "Disk",
-                    value: "\(Int(systemMonitor.diskUsage))%",
+                    value: "\(Int(SystemMonitor.shared.diskUsage))%",
                     color: .orange
                 )
                 
-                if systemMonitor.batteryLevel > 0 {
+                if SystemMonitor.shared.batteryLevel > 0 {
                     QuickStatRow(
                         title: "Battery",
-                        value: "\(Int(systemMonitor.batteryLevel))%",
+                        value: "\(Int(SystemMonitor.shared.batteryLevel))%",
                         color: .purple
                     )
                 }
@@ -78,7 +76,7 @@ struct MenuBarView: View {
         }
         .frame(width: 200)
         .onAppear {
-            systemMonitor.startMonitoring()
+            SystemMonitor.shared.startMonitoring()
         }
     }
 }

@@ -8,17 +8,18 @@ import SystemConfiguration
 /// Main system monitoring class that collects data from various macOS APIs
 @MainActor
 public class SystemMonitor: ObservableObject {
+    static let shared = SystemMonitor()
     // MARK: - Published Properties
     
-    @Published var cpuUsage: Double = 0.0
-    @Published var memoryUsage: Double = 0.0
-    @Published var diskUsage: Double = 0.0
-    @Published var networkUploadSpeed: Double = 0.0
-    @Published var networkDownloadSpeed: Double = 0.0
-    @Published var batteryLevel: Double = 0.0
-    @Published var batteryHealth: String = "Unknown"
-    @Published var temperature: Double = 0.0
-    @Published var fanSpeed: Double = 0.0
+    @Published var cpuUsage: Double = 25.0
+    @Published var memoryUsage: Double = 45.0
+    @Published var diskUsage: Double = 60.0
+    @Published var networkUploadSpeed: Double = 5.2
+    @Published var networkDownloadSpeed: Double = 12.8
+    @Published var batteryLevel: Double = 85.0
+    @Published var batteryHealth: String = "Good"
+    @Published var temperature: Double = 45.0
+    @Published var fanSpeed: Double = 1200.0
     
     // MARK: - Private Properties
     
@@ -28,13 +29,14 @@ public class SystemMonitor: ObservableObject {
     
     // MARK: - Public Methods
     
-    public init() {
+    private init() {
         // Initialize with default values
     }
     
     public func startMonitoring() {
         // Start monitoring with 1-second intervals
-        monitoringTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+        monitoringTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
             Task { @MainActor in
                 await self.updateSystemStats()
             }

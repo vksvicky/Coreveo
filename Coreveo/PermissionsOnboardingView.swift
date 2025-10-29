@@ -379,13 +379,23 @@ struct PermissionsOnboardingView: View {
             }
 
         case 1:
-            // Full Disk Access pane
+            // Full Disk Access: First, attempt to trigger TCC prompt by accessing a protected file
+            // This will show the permission dialog if it hasn't been shown yet
+            triggerFullDiskAccessPrompt()
+            
+            // Also open the System Settings pane to guide the user
             if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles") {
                 NSWorkspace.shared.open(url)
                 bringSystemSettingsToFront()
             } else if let fallback = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy") {
                 NSWorkspace.shared.open(fallback)
                 bringSystemSettingsToFront()
+            }
+            
+            // Start polling to detect when permission is granted
+            isChecking = true
+            pollPermission(step: 1, attempts: 20, interval: 0.5) {
+                isChecking = false
             }
 
         case 2:
@@ -425,6 +435,57 @@ struct PermissionsOnboardingView: View {
             }
             NSLog("[Onboarding] System Settings activation attempt completed (may already be foreground)")
         }
+    }
+    
+    /// Attempt to trigger Full Disk Access TCC prompt by accessing a protected file
+    private func triggerFullDiskAccessPrompt() {
+        NSLog("[Onboarding] Attempting to trigger Full Disk Access TCC prompt...")
+        
+        guard let realHome = getRealHomeDirectory() else {
+            NSLog("[Onboarding] ⚠️ Could not determine real home directory for TCC prompt")
+            return
+        }
+        
+        let fileManager = FileManager.default
+        
+        // Try accessing a protected file that commonly triggers the TCC prompt
+        // Using a file that's more likely to exist and trigger the prompt
+        let testPaths = [
+            "\(realHome)/Library/Mail/V2/MailData/Envelope Index",  // Mail envelope index
+            "\(realHome)/Library/Safari/History.db",                  // Safari history
+            "\(realHome)/Library/Calendars/Calendar Cache",           // Calendar cache
+            "\(realHome)/Library/Application Support/com.apple.sharedfilelist/com.apple.LSSharedFileList.RecentItems.sfl", // Recent items
+            "\(realHome)/Library/Mail",                                // Mail directory itself
+            "\(realHome)/Library/Safari",                             // Safari directory itself
+        ]
+        
+        // Try to access these files - this will trigger TCC prompt if permission hasn't been requested yet
+        for path in testPaths {
+            if fileManager.fileExists(atPath: path) {
+                do {
+                    // Try to read attributes or contents - this triggers TCC
+                    _ = try fileManager.attributesOfItem(atPath: path)
+                    NSLog("[Onboarding] Triggered TCC check for: \(path)")
+                    // If we get here, we might have permission, but continue to ensure prompt shows
+                } catch {
+                    // Expected error if permission denied - this is what triggers the TCC prompt
+                    NSLog("[Onboarding] TCC trigger attempt for \(path): \(error.localizedDescription)")
+                }
+            } else {
+                // Try to access the parent directory if file doesn't exist
+                let parentDir = (path as NSString).deletingLastPathComponent
+                if fileManager.fileExists(atPath: parentDir) {
+                    do {
+                        _ = try fileManager.contentsOfDirectory(atPath: parentDir)
+                        NSLog("[Onboarding] Triggered TCC check for directory: \(parentDir)")
+                    } catch {
+                        NSLog("[Onboarding] TCC trigger attempt for directory \(parentDir): \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
+        
+        NSLog("[Onboarding] Full Disk Access TCC prompt trigger attempt completed")
     }
     
     private func checkAccessibilityPermission() -> Bool {
@@ -493,12 +554,15 @@ struct PermissionsOnboardingView: View {
         NSLog("[Onboarding] Sandbox home directory: \(NSHomeDirectory())")
         
         // Test multiple protected paths - only need one to succeed
+        // Try more reliable paths that are more likely to exist
         let protectedPaths = [
-            "\(realHome)/Library/Mail",                    // Mail data - requires FDA
+            "\(realHome)/Library/Mail/V2/MailData",       // Mail data - requires FDA (more specific)
             "\(realHome)/Library/Safari",                  // Safari data - requires FDA
             "\(realHome)/Library/Calendars",               // Calendar data - requires FDA
             "\(realHome)/Library/Application Support/com.apple.sharedfilelist", // Shared file lists - requires FDA
-            "\(realHome)/Library/Keychains"                // Keychains - requires FDA (fallback)
+            "\(realHome)/Library/Keychains",               // Keychains - requires FDA
+            "\(realHome)/Library/Application Support/com.apple.TCC", // TCC database - requires FDA
+            "/private/var/log/system.log"                   // System log - requires FDA (absolute path)
         ]
         
         for path in protectedPaths {
@@ -511,15 +575,33 @@ struct PermissionsOnboardingView: View {
             }
             
             do {
-                let contents = try fileManager.contentsOfDirectory(atPath: path)
-                NSLog("[Onboarding] ✅ Full Disk Access GRANTED - accessed \(path) (\(contents.count) items)")
-                return true
+                // Try to read directory contents or file attributes
+                var isDirectory: ObjCBool = false
+                if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
+                    if isDirectory.boolValue {
+                        let contents = try fileManager.contentsOfDirectory(atPath: path)
+                        NSLog("[Onboarding] ✅ Full Disk Access GRANTED - accessed directory \(path) (\(contents.count) items)")
+                        return true
+                    } else {
+                        // It's a file, try to read attributes
+                        _ = try fileManager.attributesOfItem(atPath: path)
+                        NSLog("[Onboarding] ✅ Full Disk Access GRANTED - accessed file \(path)")
+                        return true
+                    }
+                }
             } catch let error as NSError {
                 NSLog("[Onboarding]   ❌ Access denied: \(error.domain) code:\(error.code) - \(error.localizedDescription)")
                 
                 // Check for specific permission denied errors
-                if error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513) {
+                // NSCocoaErrorDomain 257 = NSFileReadNoPermissionError
+                // NSCocoaErrorDomain 513 = NSFileWriteNoPermissionError  
+                // NSPOSIXErrorDomain 13 = Permission denied
+                if (error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513)) ||
+                   (error.domain == NSPOSIXErrorDomain && error.code == 13) {
                     NSLog("[Onboarding]   This is a permission denied error (expected without FDA)")
+                } else {
+                    // Other errors might indicate permission denied too
+                    NSLog("[Onboarding]   Unexpected error - might indicate permission denied")
                 }
             }
         }
@@ -698,7 +780,7 @@ struct PermissionStepView: View {
                         .disabled(isChecking)
                         
                         if !isGranted {
-                            Button(currentStep == 0 ? "Request Permission" : "Open System Settings") {
+                            Button(currentStep == 0 || currentStep == 1 ? "Request Permission" : "Open System Settings") {
                                 onOpenSystemSettings()
                             }
                             .buttonStyle(.borderedProminent)

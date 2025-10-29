@@ -1,18 +1,16 @@
 import SwiftUI
 
 struct CPUView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("CPU Monitoring")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
-            Text("CPU Usage: \(Int(systemMonitor.cpuUsage))%")
+            Text("CPU Usage: \(Int(SystemMonitor.shared.cpuUsage))%")
                 .font(.title2)
             
-            ProgressView(value: systemMonitor.cpuUsage / 100.0)
+            ProgressView(value: SystemMonitor.shared.cpuUsage / 100.0)
                 .progressViewStyle(LinearProgressViewStyle(tint: .blue))
                 .scaleEffect(y: 3)
             
@@ -24,18 +22,16 @@ struct CPUView: View {
 }
 
 struct MemoryView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Memory Monitoring")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
-            Text("Memory Usage: \(Int(systemMonitor.memoryUsage))%")
+            Text("Memory Usage: \(Int(SystemMonitor.shared.memoryUsage))%")
                 .font(.title2)
             
-            ProgressView(value: systemMonitor.memoryUsage / 100.0)
+            ProgressView(value: SystemMonitor.shared.memoryUsage / 100.0)
                 .progressViewStyle(LinearProgressViewStyle(tint: .green))
                 .scaleEffect(y: 3)
             
@@ -47,18 +43,16 @@ struct MemoryView: View {
 }
 
 struct DiskView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Disk Monitoring")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
-            Text("Disk Usage: \(Int(systemMonitor.diskUsage))%")
+            Text("Disk Usage: \(Int(SystemMonitor.shared.diskUsage))%")
                 .font(.title2)
             
-            ProgressView(value: systemMonitor.diskUsage / 100.0)
+            ProgressView(value: SystemMonitor.shared.diskUsage / 100.0)
                 .progressViewStyle(LinearProgressViewStyle(tint: .orange))
                 .scaleEffect(y: 3)
             
@@ -70,8 +64,6 @@ struct DiskView: View {
 }
 
 struct NetworkView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Network Monitoring")
@@ -79,10 +71,10 @@ struct NetworkView: View {
                 .fontWeight(.bold)
             
             VStack(alignment: .leading, spacing: 10) {
-                Text("Upload Speed: \(String(format: "%.1f", systemMonitor.networkUploadSpeed)) Mbps")
+                Text("Upload Speed: \(String(format: "%.1f", SystemMonitor.shared.networkUploadSpeed)) Mbps")
                     .font(.title2)
                 
-                Text("Download Speed: \(String(format: "%.1f", systemMonitor.networkDownloadSpeed)) Mbps")
+                Text("Download Speed: \(String(format: "%.1f", SystemMonitor.shared.networkDownloadSpeed)) Mbps")
                     .font(.title2)
             }
             
@@ -94,23 +86,21 @@ struct NetworkView: View {
 }
 
 struct BatteryView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Battery Monitoring")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
-            if systemMonitor.batteryLevel > 0 {
-                Text("Battery Level: \(Int(systemMonitor.batteryLevel))%")
+            if SystemMonitor.shared.batteryLevel > 0 {
+                Text("Battery Level: \(Int(SystemMonitor.shared.batteryLevel))%")
                     .font(.title2)
                 
-                ProgressView(value: systemMonitor.batteryLevel / 100.0)
+                ProgressView(value: SystemMonitor.shared.batteryLevel / 100.0)
                     .progressViewStyle(LinearProgressViewStyle(tint: .green))
                     .scaleEffect(y: 3)
                 
-                Text("Battery Health: \(systemMonitor.batteryHealth)")
+                Text("Battery Health: \(SystemMonitor.shared.batteryHealth)")
                     .font(.title3)
                     .foregroundColor(.secondary)
             } else {
@@ -127,8 +117,6 @@ struct BatteryView: View {
 }
 
 struct TemperatureView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Temperature Monitoring")
@@ -136,10 +124,10 @@ struct TemperatureView: View {
                 .fontWeight(.bold)
             
             VStack(alignment: .leading, spacing: 10) {
-                Text("Temperature: \(Int(systemMonitor.temperature))°C")
+                Text("Temperature: \(Int(SystemMonitor.shared.temperature))°C")
                     .font(.title2)
                 
-                Text("Fan Speed: \(Int(systemMonitor.fanSpeed)) RPM")
+                Text("Fan Speed: \(Int(SystemMonitor.shared.fanSpeed)) RPM")
                     .font(.title2)
             }
             
@@ -151,8 +139,6 @@ struct TemperatureView: View {
 }
 
 struct ProcessView: View {
-    @EnvironmentObject var systemMonitor: SystemMonitor
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Process Monitoring")
@@ -172,5 +158,4 @@ struct ProcessView: View {
 
 #Preview {
     CPUView()
-        .environmentObject(SystemMonitor())
 }

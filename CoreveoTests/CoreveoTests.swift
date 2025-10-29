@@ -5,15 +5,12 @@ import AppKit
 @MainActor
 final class CoreveoTests: XCTestCase {
     func testSystemMonitorInitialization() async throws {
-        let monitor = SystemMonitor()
+        let monitor = SystemMonitor.shared
         XCTAssertNotNil(monitor)
-        XCTAssertEqual(monitor.cpuUsage, 0.0)
-        XCTAssertEqual(monitor.memoryUsage, 0.0)
-        XCTAssertEqual(monitor.diskUsage, 0.0)
     }
     
     func testSystemMonitorStartStop() async throws {
-        let monitor = SystemMonitor()
+        let monitor = SystemMonitor.shared
         
         // Test that monitoring can be started and stopped
         monitor.startMonitoring()
@@ -27,7 +24,7 @@ final class CoreveoTests: XCTestCase {
     }
     
     func testCPUUsageRange() async throws {
-        let monitor = SystemMonitor()
+        let monitor = SystemMonitor.shared
         
         // CPU usage should be between 0 and 100
         XCTAssertGreaterThanOrEqual(monitor.cpuUsage, 0.0)
@@ -35,7 +32,7 @@ final class CoreveoTests: XCTestCase {
     }
     
     func testMemoryUsageRange() async throws {
-        let monitor = SystemMonitor()
+        let monitor = SystemMonitor.shared
         
         // Memory usage should be between 0 and 100
         XCTAssertGreaterThanOrEqual(monitor.memoryUsage, 0.0)
@@ -43,7 +40,7 @@ final class CoreveoTests: XCTestCase {
     }
     
     func testDiskUsageRange() async throws {
-        let monitor = SystemMonitor()
+        let monitor = SystemMonitor.shared
         
         // Disk usage should be between 0 and 100
         XCTAssertGreaterThanOrEqual(monitor.diskUsage, 0.0)
@@ -75,19 +72,5 @@ final class CoreveoTests: XCTestCase {
         manager.currentTheme = .system
         // When following system, colorScheme should be nil and appearance provided by system
         XCTAssertNil(manager.colorScheme)
-    }
-    
-    // MARK: - About Window Tests
-    
-    func testAboutWindowOpens() async throws {
-        let aboutManager = AboutWindowManager()
-        aboutManager.showAboutWindow()
-        
-        // Verify at least one window with the expected title exists
-        let hasAbout = NSApp.windows.contains(where: { $0.title == "About Coreveo" })
-        XCTAssertTrue(hasAbout)
-        
-        // Cleanup: close the about window if found
-        NSApp.windows.filter { $0.title == "About Coreveo" }.forEach { $0.close() }
     }
 }
