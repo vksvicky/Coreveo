@@ -14,7 +14,8 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
 
 ## 🗺️ Development Phases
 
-### **PHASE 1: Foundation & Core Monitoring** 
+### **PHASE 1: Foundation & Core Monitoring**  
+_(Priorities: P0 = critical, P1 = high, P2 = medium, P3 = low)_
 *Essential system monitoring capabilities*
 
 - [ ] **Project Setup**
@@ -22,83 +23,94 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
   - [x] Implement basic project structure and dependencies
   - [ ] Set up IOKit and Core Foundation integration
 
-- [ ] **CPU Monitoring**
+- [ ] **CPU Monitoring** (P1)
   - [ ] Real-time CPU usage per core
   - [ ] CPU temperature monitoring
   - [ ] Historical CPU load graphs
   - [ ] Top processes by CPU consumption
 
-- [ ] **Memory Monitoring**
+- [ ] **Memory Monitoring** (P1)
   - [ ] Current RAM usage breakdown (active, wired, compressed, free)
   - [ ] Memory pressure indicators
   - [ ] Swap usage and activity
   - [ ] Top memory-consuming applications
 
-- [ ] **Disk Monitoring**
+- [ ] **Disk Monitoring** (P2)
   - [ ] Storage capacity and usage statistics
   - [ ] Real-time disk I/O performance (read/write speeds)
   - [ ] S.M.A.R.T. status for disk health
   - [ ] Temperature monitoring for SSDs/HDDs
 
-- [ ] **Network Monitoring**
+- [ ] **Network Monitoring** (P3)
   - [ ] Real-time upload/download speeds
   - [ ] Public and local IP addresses
   - [ ] Wi-Fi signal strength and network details
   - [ ] Network interface status
 
-- [ ] **Battery Monitoring** (MacBooks)
+- [ ] **Battery Monitoring** (MacBooks) (P2)
   - [ ] Current charge level and time remaining
   - [ ] Battery health status and cycle count
   - [ ] Power usage statistics
   - [ ] Temperature readings
 
-- [ ] **Temperature & Fan Control**
+- [ ] **Temperature & Fan Control** (P2)
   - [ ] CPU, GPU, and system temperature readings
   - [ ] Fan speed monitoring and manual control
   - [ ] Thermal throttling detection
   - [ ] Overheating alerts
 
-- [ ] **Process Management**
+- [ ] **Process Management** (P3)
   - [ ] Running processes with resource usage
   - [ ] Process termination capabilities
   - [ ] Process priority management
   - [ ] Background app activity monitoring
 
-### **PHASE 2: Display Modes**
+### **PHASE 2: Display Modes**  
+_(P0-P2 depending on permutation; see priorities below)_
 *Flexible user interface options*
 
-- [ ] **Dock App Mode**
+- [ ] **Dock App Mode** (P1)
   - [ ] Full-featured application with comprehensive dashboard
   - [ ] Resizable window with multiple tabs
   - [ ] Deep-dive analytics and historical data
   - [ ] Complete system control and management
 
-- [ ] **Menu Bar Integration**
+- [ ] **Menu Bar Integration** (P0)
   - [x] Compact menu bar icon with real-time metrics
   - [x] Dropdown with key statistics
   - [x] Preference to show/hide menu bar item
   - [ ] Quick access to alerts and notifications
   - [ ] Minimal resource footprint
 
-- [ ] **Desktop Widgets**
+- [ ] **Desktop Widgets** (P2)
   - [ ] Floating, resizable, movable widgets on desktop
   - [ ] Multiple widget types (CPU, Memory, Network, Temperature)
   - [ ] Customizable transparency and styling
   - [ ] Always-on-top option
 
-- [ ] **Notification Center Widgets**
+- [ ] **Notification Center Widgets** (P3)
   - [ ] Integration with macOS Notification Center
   - [ ] Quick stats in Today view
   - [ ] Swipe gestures for more details
   - [ ] System status at a glance
 
-- [ ] **Flexible Combinations**
+- [ ] **Flexible Combinations** (P1)
   - [ ] Hybrid mode combining any of the above modes
   - [ ] Context-aware switching based on activity
   - [ ] Profile-based modes for different user profiles
   - [ ] Synchronized data across all modes
+  - [ ] Supported permutations (user-selectable)
+    - [ ] Dock only
+    - [ ] Menu Bar only (P0)
+    - [ ] Widgets only (P2)
+    - [ ] Dock + Menu Bar (P1)
+    - [ ] Dock + Widgets (P2)
+    - [ ] Menu Bar + Widgets (P2)
+    - [ ] Dock + Menu Bar + Widgets (all) (P2)
+  - [ ] Single source of truth for monitoring data shared across modes
+  - [ ] Unified preference to enable/disable each mode at runtime
 
-### **PHASE 3: Unique Features**
+### **PHASE 3: Unique Features** (P3 overall)
 *Differentiating capabilities*
 
 - [ ] **Adaptive Performance Intelligence**
@@ -137,7 +149,7 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
   - [ ] Widget marketplace for community-created widgets
   - [ ] Automated layout arrangements based on usage
 
-### **PHASE 4: Advanced Features**
+### **PHASE 4: Advanced Features** (P3)
 *Specialized functionality*
 
 - [ ] **Performance Gaming Mode**
@@ -164,25 +176,26 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
   - [ ] Optional cloud backup of performance data
   - [ ] REST API for third-party integrations
 
-### **PHASE 5: Polish & Launch**
+### **PHASE 5: Polish & Launch**  
+_(mixed priorities, core items marked P0/P1)_
 *Production readiness*
 
-- [ ] **Settings & Preferences**
+- [ ] **Settings & Preferences** (P0)
   - [x] Comprehensive settings interface
     - [x] General tab
-      - [ ] Launch at Login
+      - [ ] Launch at Login (P1)
         - [x] UI: toggle present in General tab
         - [ ] Functionality: register/unregister app at login via SMAppService
-      - [ ] Start Monitoring on Launch
+      - [ ] Start Monitoring on Launch (P1)
         - [x] UI: toggle present in General tab
         - [ ] Functionality: auto-start `SystemMonitor` on app launch when enabled
-      - [ ] Show Menu Bar Item
+      - [ ] Show Menu Bar Item (P0)
         - [x] UI: toggle present in General tab
         - [ ] Functionality: show/hide menu bar extra dynamically
-      - [ ] Refresh Interval
+      - [ ] Refresh Interval (P0)
         - [x] UI: slider (0.5s–5s) + value label
         - [ ] Functionality: apply interval to monitoring timer
-      - [ ] Temperature Units
+      - [ ] Temperature Units (P2)
         - [x] UI: segmented control (Celsius/Fahrenheit)
         - [ ] Functionality: convert/format temperatures based on selection
     - [x] Appearance tab
@@ -192,25 +205,30 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
       - [x] Accessibility status + actions
       - [x] Full Disk Access status + actions
       - [x] Open System Settings CTAs
-  - [x] User preference management (AppStorage)
+  - [x] User preference management (AppStorage) (P0)
   - [x] Theme and appearance customization (ThemeManager)
   - [ ] Notification preferences
 
-- [ ] **Data Management**
+- [ ] **Help & Documentation**
+  - [x] In‑app Help window (menu command)
+  - [x] Help content (`docs/HELP.md`)
+  - [ ] User guide and screenshots
+
+- [ ] **Data Management** (P2)
   - [ ] Data persistence and historical tracking
   - [ ] Efficient data storage and retrieval
   - [ ] Data cleanup and maintenance
   - [ ] Backup and restore functionality
 
-- [ ] **Performance & Optimization**
+- [ ] **Performance & Optimization** (P2)
   - [ ] Performance optimization and memory management
   - [ ] Battery usage optimization
   - [ ] CPU overhead minimization
   - [ ] Resource usage monitoring
 
-- [ ] **Quality Assurance**
+- [ ] **Quality Assurance** (P1)
   - [ ] Comprehensive error handling and logging
-  - [ ] Automated testing suite
+  - [x] Automated tests (theme mapping, help window, prefs round‑trip, monitor lifecycle)
   - [ ] Performance testing and benchmarking
   - [ ] User acceptance testing
 
