@@ -73,4 +73,42 @@ final class CoreveoTests: XCTestCase {
         // When following system, colorScheme should be nil and appearance provided by system
         XCTAssertNil(manager.colorScheme)
     }
+
+    // MARK: - Help Window Tests
+    func testHelpWindowOpens() async throws {
+        await MainActor.run {
+            HelpWindowManager.showHelpWindow()
+        }
+        let hasHelp = NSApp.windows.contains(where: { $0.title == "Coreveo Help" })
+        XCTAssertTrue(hasHelp)
+        NSApp.windows.filter { $0.title == "Coreveo Help" }.forEach { $0.close() }
+    }
+
+    // MARK: - Preferences Wiring
+    func testRefreshIntervalPreferenceRoundTrip() throws {
+        let defaults = UserDefaults.standard
+        defaults.set(1.0, forKey: "refreshIntervalSeconds")
+        XCTAssertEqual(defaults.double(forKey: "refreshIntervalSeconds"), 1.0)
+        defaults.set(2.0, forKey: "refreshIntervalSeconds")
+        XCTAssertEqual(defaults.double(forKey: "refreshIntervalSeconds"), 2.0)
+    }
+
+    func testShowMenuBarItemPreferenceRoundTrip() throws {
+        let defaults = UserDefaults.standard
+        defaults.set(true, forKey: "showMenuBarItem")
+        XCTAssertEqual(defaults.bool(forKey: "showMenuBarItem"), true)
+        defaults.set(false, forKey: "showMenuBarItem")
+        XCTAssertEqual(defaults.bool(forKey: "showMenuBarItem"), false)
+    }
+
+    // MARK: - SystemMonitor stability
+    func testSystemMonitorRepeatedStartStopDoesNotCrash() async throws {
+        let monitor = SystemMonitor.shared
+        for _ in 0..<3 {
+            await MainActor.run { monitor.startMonitoring() }
+            try await Task.sleep(nanoseconds: 50_000_000)
+            await MainActor.run { monitor.stopMonitoring() }
+        }
+        XCTAssertNotNil(monitor)
+    }
 }

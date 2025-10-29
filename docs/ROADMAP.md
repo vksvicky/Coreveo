@@ -18,8 +18,8 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
 *Essential system monitoring capabilities*
 
 - [ ] **Project Setup**
-  - [ ] Set up Xcode project with SwiftUI architecture
-  - [ ] Implement basic project structure and dependencies
+  - [x] Set up Xcode project with SwiftUI architecture
+  - [x] Implement basic project structure and dependencies
   - [ ] Set up IOKit and Core Foundation integration
 
 - [ ] **CPU Monitoring**
@@ -74,8 +74,9 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
   - [ ] Complete system control and management
 
 - [ ] **Menu Bar Integration**
-  - [ ] Compact menu bar icon with real-time metrics
-  - [ ] Dropdown with key statistics
+  - [x] Compact menu bar icon with real-time metrics
+  - [x] Dropdown with key statistics
+  - [x] Preference to show/hide menu bar item
   - [ ] Quick access to alerts and notifications
   - [ ] Minimal resource footprint
 
@@ -167,9 +168,32 @@ Coreveo aims to be the ultimate Mac system monitoring solution with:
 *Production readiness*
 
 - [ ] **Settings & Preferences**
-  - [ ] Comprehensive settings interface
-  - [ ] User preference management
-  - [ ] Theme and appearance customization
+  - [x] Comprehensive settings interface
+    - [x] General tab
+      - [ ] Launch at Login
+        - [x] UI: toggle present in General tab
+        - [ ] Functionality: register/unregister app at login via SMAppService
+      - [ ] Start Monitoring on Launch
+        - [x] UI: toggle present in General tab
+        - [ ] Functionality: auto-start `SystemMonitor` on app launch when enabled
+      - [ ] Show Menu Bar Item
+        - [x] UI: toggle present in General tab
+        - [ ] Functionality: show/hide menu bar extra dynamically
+      - [ ] Refresh Interval
+        - [x] UI: slider (0.5s–5s) + value label
+        - [ ] Functionality: apply interval to monitoring timer
+      - [ ] Temperature Units
+        - [x] UI: segmented control (Celsius/Fahrenheit)
+        - [ ] Functionality: convert/format temperatures based on selection
+    - [x] Appearance tab
+      - [x] Theme selection (System/Light/Dark)
+      - [x] Accent/appearance polish
+    - [x] Permissions tab
+      - [x] Accessibility status + actions
+      - [x] Full Disk Access status + actions
+      - [x] Open System Settings CTAs
+  - [x] User preference management (AppStorage)
+  - [x] Theme and appearance customization (ThemeManager)
   - [ ] Notification preferences
 
 - [ ] **Data Management**

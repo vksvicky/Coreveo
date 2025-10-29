@@ -24,6 +24,7 @@
 		E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */; };
 		E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */; };
 		E2606BE72EB268E400244947 /* PermissionsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */; };
+		E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF02EB26A0000244947 /* HelpWindow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		E2606BE02EB268D600244947 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		E2606BE12EB268D600244947 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsSettingsView.swift; sourceTree = "<group>"; };
+		E2606BF02EB26A0000244947 /* HelpWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpWindow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +107,7 @@
 				E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */,
 				E2606BE02EB268D600244947 /* SettingsComponents.swift */,
 				E2606BE12EB268D600244947 /* SettingsView.swift */,
+				E2606BF02EB26A0000244947 /* HelpWindow.swift */,
 				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
 				A1000001294A1234567890BC /* Assets.xcassets */,
 				A1000001294A1234567890C1 /* Info.plist */,
@@ -250,6 +253,7 @@
 				A1000001294A1234567890B9 /* PermissionsOnboardingView.swift in Sources */,
 				E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */,
 				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
+				E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */,
 				A1000001294A1234567890AB /* CoreveoApp.swift in Sources */,
 				A1000001294A1234567890E2 /* PreviewContent.swift in Sources */,
 				A1000001294A1234567890E5 /* ThemeManager.swift in Sources */,

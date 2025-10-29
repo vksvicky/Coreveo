@@ -48,11 +48,26 @@ struct CoreveoApp: App {
                 .keyboardShortcut("?", modifiers: [])
             }
             
+            // Remove default "New Window" from the File menu
+            CommandGroup(replacing: .newItem) { }
+
+            // Remove Edit menu items we don't use
+            CommandGroup(replacing: .undoRedo) { }
+            CommandGroup(replacing: .pasteboard) { }
+            CommandGroup(replacing: .textEditing) { }
+
             CommandGroup(after: .appInfo) {
                 Button("Settings...") {
                     appDelegate.showSettingsWindow()
                 }
                 .keyboardShortcut(",", modifiers: [.command])
+            }
+
+            CommandGroup(replacing: .help) {
+                Button("Coreveo Help") {
+                    HelpWindowManager.showHelpWindow()
+                }
+                .keyboardShortcut("?", modifiers: [.command, .shift])
             }
         }
     }
@@ -322,11 +337,13 @@ struct CoreveoApp: App {
     
 }
 
+// MARK: - Help View
+ 
 /// App delegate for handling macOS-specific functionality
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
     private var themeObserver: NSObjectProtocol?
-    
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Set as regular app (not menu bar only)
         NSApp.setActivationPolicy(.regular)
@@ -397,5 +414,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         newWindow.makeKeyAndOrderFront(nil)
     }
+
+    
 }
 
