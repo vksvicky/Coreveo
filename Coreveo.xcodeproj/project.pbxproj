@@ -32,7 +32,10 @@
 		E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */; };
 		E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */; };
 		E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */; };
-		E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
+        E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
+        E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000002EB4000000000001 /* MarkdownViewer.swift */; };
+        E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000062EB4A10000000003 /* MarkdownViewerTests.swift */; };
+        E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000072EB4A10000000004 /* MarkdownBDDTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,11 +77,14 @@
 		E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsSettingsView.swift; sourceTree = "<group>"; };
 		E2606BF02EB26A0000244947 /* HelpWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpWindow.swift; sourceTree = "<group>"; };
+        E30000002EB4000000000001 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
 		E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsTests.swift; sourceTree = "<group>"; };
 		E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsCalculator.swift; sourceTree = "<group>"; };
 		E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorCPUTests.swift; sourceTree = "<group>"; };
 		E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMetricsReader.swift; sourceTree = "<group>"; };
-		E2606C052EB26D8000244947 /* CPULayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULayoutTests.swift; sourceTree = "<group>"; };
+        E2606C052EB26D8000244947 /* CPULayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULayoutTests.swift; sourceTree = "<group>"; };
+        E30000062EB4A10000000003 /* MarkdownViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewerTests.swift; sourceTree = "<group>"; };
+        E30000072EB4A10000000004 /* MarkdownBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownBDDTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,16 +129,27 @@
 			path = Coreveo;
 			sourceTree = "<group>";
 		};
-		A1000001294A1234567890C8 /* CoreveoTests */ = {
+        A1000001294A1234567890C8 /* CoreveoTests */ = {
 			isa = PBXGroup;
 			children = (
 				A1000001294A1234567890BE /* CoreveoTests.swift */,
 				A1000001294A1234567890C3 /* CoreveoTestsInfo.plist */,
 				E2606BFE2EB26D1D00244947 /* Monitoring */,
+                E30000052EB4A10000000000 /* Views */,
 			);
 			path = CoreveoTests;
 			sourceTree = "<group>";
 		};
+        E30000052EB4A10000000000 /* Views */ = {
+            isa = PBXGroup;
+            children = (
+                E30000062EB4A10000000003 /* MarkdownViewerTests.swift */,
+                E30000072EB4A10000000004 /* MarkdownBDDTests.swift */,
+            );
+            name = Views;
+            path = Views;
+            sourceTree = "<group>";
+        };
 		A1000001294A1234567890C9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -162,15 +179,16 @@
 			path = docs;
 			sourceTree = "<group>";
 		};
-		E2606BFD2EB26D1000244947 /* Monitoring */ = {
-			isa = PBXGroup;
-			children = (
+        E2606BFD2EB26D1000244947 /* Monitoring */ = {
+            isa = PBXGroup;
+            children = (
 				A1000001294A1234567890B4 /* SystemMonitor.swift */,
 				E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */,
 				5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */,
 				E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */,
 			);
-			name = Monitoring;
+            name = Monitoring;
+            path = Monitoring;
 			sourceTree = "<group>";
 		};
 		E2606BFE2EB26D1D00244947 /* Monitoring */ = {
@@ -183,9 +201,9 @@
 			name = Monitoring;
 			sourceTree = "<group>";
 		};
-		E2606C012EB26D5000244947 /* Views */ = {
-			isa = PBXGroup;
-			children = (
+        E2606C012EB26D5000244947 /* Views */ = {
+            isa = PBXGroup;
+            children = (
 				A1000001294A1234567890AE /* ContentView.swift */,
 				A1000001294A1234567890B0 /* SidebarView.swift */,
 				A1000001294A1234567890B2 /* MenuBarView.swift */,
@@ -193,13 +211,15 @@
 				A1000001294A1234567890B8 /* MonitoringViews.swift */,
 				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
 				E2606BF02EB26A0000244947 /* HelpWindow.swift */,
+                E30000002EB4000000000001 /* MarkdownViewer.swift */,
 			);
 			name = Views;
+            path = Views;
 			sourceTree = "<group>";
 		};
-		E2606C022EB26D5100244947 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
+        E2606C022EB26D5100244947 /* Settings */ = {
+            isa = PBXGroup;
+            children = (
 				A1000001294A1234567890E8 /* SettingsView.swift */,
 				E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */,
 				E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */,
@@ -207,6 +227,7 @@
 				E2606BD62EB2683100244947 /* SettingsComponents.swift */,
 			);
 			name = Settings;
+            path = Settings;
 			sourceTree = "<group>";
 		};
 		E2606C032EB26D5200244947 /* Resources */ = {
@@ -330,6 +351,7 @@
 				E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */,
 				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
 				E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */,
+                E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */,
 				E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */,
 				E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */,
 				A1000001294A1234567890AB /* CoreveoApp.swift in Sources */,
@@ -341,7 +363,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A1000001294A1234567890D0 /* Sources */ = {
+        A1000001294A1234567890D0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -349,6 +371,8 @@
 				E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */,
 				E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */,
 				E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */,
+                E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */,
+                E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

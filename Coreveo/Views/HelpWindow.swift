@@ -1,6 +1,6 @@
 import AppKit
-import SwiftUI
 import Foundation
+import SwiftUI
 
 final class HelpWindowManager {
     private static var helpWindow: NSWindow?
@@ -50,60 +50,13 @@ private struct MarkdownHelpView: View {
         }
         return nil
     }
-    
     private var markdownText: String {
         if let text = loadHelpMarkdown() { return text }
         return "# Coreveo Help\n\nHELP.md not bundled."
     }
     
     var body: some View {
-        MarkdownTextView(markdown: markdownText)
+        MarkdownViewer(markdown: markdownText)
             .padding(.vertical, 8)
-    }
-}
-
-private struct MarkdownTextView: NSViewRepresentable {
-    let markdown: String
-    
-    func makeNSView(context: Context) -> NSScrollView {
-        let textView = NSTextView()
-        textView.isEditable = false
-        textView.isSelectable = true
-        textView.isRichText = true
-        textView.usesFontPanel = false
-        textView.usesFindBar = true
-        textView.drawsBackground = false
-        textView.textContainerInset = NSSize(width: 14, height: 12)
-        textView.textContainer?.widthTracksTextView = true
-        textView.textContainer?.lineFragmentPadding = 0
-        textView.linkTextAttributes = [ .foregroundColor: NSColor.linkColor ]
-        
-        let scroll = NSScrollView()
-        scroll.hasVerticalScroller = true
-        scroll.hasHorizontalScroller = false
-        scroll.drawsBackground = false
-        scroll.documentView = textView
-        
-        update(textView: textView)
-        return scroll
-    }
-    
-    func updateNSView(_ nsView: NSScrollView, context: Context) {
-        if let textView = nsView.documentView as? NSTextView {
-            update(textView: textView)
-        }
-    }
-    
-    private func update(textView: NSTextView) {
-        if let attr = try? NSAttributedString(
-            markdown: markdown,
-            options: .init(interpretedSyntax: .full),
-            baseURL: Bundle.main.bundleURL
-        ) {
-            textView.textStorage?.setAttributedString(attr)
-            return
-        }
-        // Fallback to plain text
-        textView.string = markdown
     }
 }
