@@ -21,6 +21,8 @@
 		A1000001294A1234567890E2 /* PreviewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E3 /* PreviewContent.swift */; };
 		A1000001294A1234567890E5 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E6 /* ThemeManager.swift */; };
 		A1000001294A1234567890E7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E8 /* SettingsView.swift */; };
+		E24BA29C2EB3958000DC0AE4 /* HELP.md in Resources */ = {isa = PBXBuildFile; fileRef = E24BA2972EB3957000DC0AE4 /* HELP.md */; };
+		E24BA29D2EB3B9F400DC0AE4 /* HELP.md in Resources */ = {isa = PBXBuildFile; fileRef = E24BA2972EB3957000DC0AE4 /* HELP.md */; };
 		E2606BD72EB2683100244947 /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BD62EB2683100244947 /* SettingsComponents.swift */; };
 		E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */; };
 		E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */; };
@@ -29,6 +31,7 @@
 		E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */; };
 		E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */; };
 		E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */; };
+		E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */; };
 		E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -61,6 +64,11 @@
 		A1000001294A1234567890E3 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890E6 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890E8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; tabWidth = 4; };
+		E24BA2962EB3957000DC0AE4 /* DEVELOPMENT_PLAN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DEVELOPMENT_PLAN.md; sourceTree = "<group>"; };
+		E24BA2972EB3957000DC0AE4 /* HELP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HELP.md; sourceTree = "<group>"; };
+		E24BA2982EB3957000DC0AE4 /* PERMISSION_TESTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PERMISSION_TESTING.md; sourceTree = "<group>"; };
+		E24BA2992EB3957000DC0AE4 /* PRODUCT_COMPARISON.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PRODUCT_COMPARISON.md; sourceTree = "<group>"; };
+		E24BA29A2EB3957000DC0AE4 /* ROADMAP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ROADMAP.md; sourceTree = "<group>"; };
 		E2606BD62EB2683100244947 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
 		E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
@@ -69,6 +77,7 @@
 		E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsTests.swift; sourceTree = "<group>"; };
 		E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsCalculator.swift; sourceTree = "<group>"; };
 		E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorCPUTests.swift; sourceTree = "<group>"; };
+		E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMetricsReader.swift; sourceTree = "<group>"; };
 		E2606C052EB26D8000244947 /* CPULayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULayoutTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -93,6 +102,7 @@
 		A1000001294A1234567890C6 = {
 			isa = PBXGroup;
 			children = (
+				E24BA29B2EB3957000DC0AE4 /* docs */,
 				A1000001294A1234567890C7 /* Coreveo */,
 				A1000001294A1234567890C8 /* CoreveoTests */,
 				A1000001294A1234567890C9 /* Products */,
@@ -140,12 +150,25 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		E24BA29B2EB3957000DC0AE4 /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				E24BA2962EB3957000DC0AE4 /* DEVELOPMENT_PLAN.md */,
+				E24BA2972EB3957000DC0AE4 /* HELP.md */,
+				E24BA2982EB3957000DC0AE4 /* PERMISSION_TESTING.md */,
+				E24BA2992EB3957000DC0AE4 /* PRODUCT_COMPARISON.md */,
+				E24BA29A2EB3957000DC0AE4 /* ROADMAP.md */,
+			);
+			path = docs;
+			sourceTree = "<group>";
+		};
 		E2606BFD2EB26D1000244947 /* Monitoring */ = {
 			isa = PBXGroup;
 			children = (
 				A1000001294A1234567890B4 /* SystemMonitor.swift */,
 				E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */,
 				5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */,
+				E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */,
 			);
 			name = Monitoring;
 			sourceTree = "<group>";
@@ -276,6 +299,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E24BA29D2EB3B9F400DC0AE4 /* HELP.md in Resources */,
 				A1000001294A1234567890BB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,6 +308,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E24BA29C2EB3958000DC0AE4 /* HELP.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,6 +331,7 @@
 				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
 				E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */,
 				E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */,
+				E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */,
 				A1000001294A1234567890AB /* CoreveoApp.swift in Sources */,
 				A1000001294A1234567890E2 /* PreviewContent.swift in Sources */,
 				A1000001294A1234567890E5 /* ThemeManager.swift in Sources */,

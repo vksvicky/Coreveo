@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Foundation
 
 final class HelpWindowManager {
     private static var helpWindow: NSWindow?
@@ -11,7 +12,7 @@ final class HelpWindowManager {
             return
         }
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 720, height: 560),
+            contentRect: NSRect(x: 0, y: 0, width: 760, height: 600),
             styleMask: [.titled, .closable, .resizable],
             backing: .buffered,
             defer: false
@@ -19,42 +20,90 @@ final class HelpWindowManager {
         window.title = "Coreveo Help"
         window.center()
         window.isReleasedWhenClosed = false
-        window.appearance = ThemeManager.shared.getAppearance()
-        window.contentView = NSHostingView(rootView: HelpView())
+        window.appearance = NSApp.appearance
+        window.contentView = NSHostingView(rootView: MarkdownHelpView())
         helpWindow = window
         window.makeKeyAndOrderFront(nil)
     }
 }
 
-private struct HelpView: View {
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Coreveo Help")
-                    .font(.system(size: 28, weight: .bold))
-                Group {
-                    Text("Permissions Overview").font(.headline)
-                    Text("Coreveo needs limited permissions. Accessibility enables limited UI interactions; Full Disk Access improves certain readings; Network permission is not required unless a Network Extension is present.")
-                }
-                Group {
-                    Text("Accessibility").font(.headline)
-                    Text("Grant via System Settings → Privacy & Security → Accessibility. Use the in‑app Open System Settings button from the Permissions tab.")
-                }
-                Group {
-                    Text("Full Disk Access").font(.headline)
-                    Text("Optional. Grant via System Settings → Privacy & Security → Full Disk Access. Use the in‑app button to jump there.")
-                }
-                Group {
-                    Text("Network").font(.headline)
-                    Text("Not required. Coreveo does not include a Network Extension. If one is present on your Mac, the app may show an informational row; otherwise it’s hidden or marked Not required.")
-                }
-                Group {
-                    Text("General Settings").font(.headline)
-                    Text("Launch at Login, Start Monitoring on Launch, Show Menu Bar Item, Refresh Interval (0.5s–5s), Temperature Units (Celsius/Fahrenheit).")
-                }
-            }
-            .padding(24)
-            .frame(maxWidth: .infinity, alignment: .leading)
+private struct MarkdownHelpView: View {
+    private func loadHelpMarkdown() -> String? {
+        if let url = Bundle.main.url(forResource: "HELP", withExtension: "md"),
+           let data = try? Data(contentsOf: url),
+           let text = String(data: data, encoding: .utf8) {
+            return text
         }
+        for sub in ["docs", "Doc", "Documentation", "Resources"] {
+            if let url = Bundle.main.url(forResource: "HELP", withExtension: "md", subdirectory: sub),
+               let data = try? Data(contentsOf: url),
+               let text = String(data: data, encoding: .utf8) {
+                return text
+            }
+        }
+        if let urls = Bundle.main.urls(forResourcesWithExtension: "md", subdirectory: nil) {
+            if let match = urls.first(where: { $0.lastPathComponent == "HELP.md" }),
+               let data = try? Data(contentsOf: match),
+               let text = String(data: data, encoding: .utf8) {
+                return text
+            }
+        }
+        return nil
+    }
+    
+    private var markdownText: String {
+        if let text = loadHelpMarkdown() { return text }
+        return "# Coreveo Help\n\nHELP.md not bundled."
+    }
+    
+    var body: some View {
+        MarkdownTextView(markdown: markdownText)
+            .padding(.vertical, 8)
+    }
+}
+
+private struct MarkdownTextView: NSViewRepresentable {
+    let markdown: String
+    
+    func makeNSView(context: Context) -> NSScrollView {
+        let textView = NSTextView()
+        textView.isEditable = false
+        textView.isSelectable = true
+        textView.isRichText = true
+        textView.usesFontPanel = false
+        textView.usesFindBar = true
+        textView.drawsBackground = false
+        textView.textContainerInset = NSSize(width: 14, height: 12)
+        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.lineFragmentPadding = 0
+        textView.linkTextAttributes = [ .foregroundColor: NSColor.linkColor ]
+        
+        let scroll = NSScrollView()
+        scroll.hasVerticalScroller = true
+        scroll.hasHorizontalScroller = false
+        scroll.drawsBackground = false
+        scroll.documentView = textView
+        
+        update(textView: textView)
+        return scroll
+    }
+    
+    func updateNSView(_ nsView: NSScrollView, context: Context) {
+        if let textView = nsView.documentView as? NSTextView {
+            update(textView: textView)
+        }
+    }
+    
+    private func update(textView: NSTextView) {
+        if let attr = try? NSAttributedString(
+            markdown: markdown,
+            options: .init(interpretedSyntax: .full),
+            baseURL: Bundle.main.bundleURL
+        ) {
+            textView.textStorage?.setAttributedString(attr)
+            return
+        }
+        // Fallback to plain text
+        textView.string = markdown
     }
 }

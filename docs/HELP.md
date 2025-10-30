@@ -18,6 +18,24 @@ Coreveo needs limited system permissions to function. Here’s what each one mea
 - macOS does not have a general "Network permission". Only apps with a Network Extension (VPN, Content Filter, Packet Tunnel, etc.) require special user setup.
 - Coreveo does not ship a Network Extension, so there is nothing to grant. You may see a "Network" info row during onboarding only if a Network Extension is present on the system; otherwise it’s hidden or marked "Not required on this Mac."
 
+## CPU Metrics: Active Cores and Peak Core
+
+- Active cores: The count of cores whose utilization exceeds 5%. This threshold avoids noise from idling cores that report near‑zero background activity.
+- Peak core: The single core with the highest instantaneous utilization.
+- How utilization is computed: Coreveo samples per‑core CPU tick counters using host_processor_info and derives utilization from successive snapshots (delta of user+system+nice vs total delta). These deltas drive the per‑core usage bars, active core count, and peak identification.
+
+### Formulas
+
+Let Δuser, Δsystem, Δnice, Δidle be per‑core tick deltas between two snapshots, and Δtotal = Δuser + Δsystem + Δnice + Δidle.
+
+- Per‑core utilization:
+  - usage = (Δuser + Δsystem + Δnice) / Δtotal
+  - Equivalent: usage = 1 − (Δidle / Δtotal)
+- Active core threshold:
+  - A core is "active" when usage > 0.05 (5%)
+- Peak core:
+  - The core index with max(usage) among all cores in the latest snapshot
+
 ## General Settings
 
 - Launch at Login: Start Coreveo automatically when you sign in.

@@ -403,8 +403,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         // Use full SettingsView (shows Appearance + General)
         let settingsView = SettingsView()
-        let hostingView = NSHostingView(rootView: settingsView)
-        newWindow.contentView = hostingView
+        let hostingController = NSHostingController(rootView: settingsView)
+        newWindow.contentViewController = hostingController
         
         // Apply theme appearance
         newWindow.appearance = ThemeManager.shared.getAppearance()

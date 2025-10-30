@@ -14,7 +14,7 @@ struct DashboardView: View {
 }
 
 private struct DashboardGrid: View {
-    let monitor: SystemMonitor
+    @ObservedObject var monitor: SystemMonitor
     @Binding var selectedTab: Int
     
     var body: some View {

@@ -5,6 +5,14 @@ import IOKit.ps
 import IOKit.pwr_mgt
 import SystemConfiguration
 
+/// Represents CPU tick counters for overall CPU usage calculation.
+struct CPUTicks {
+    let user: UInt64
+    let system: UInt64
+    let idle: UInt64
+    let nice: UInt64
+}
+
 /// Helper to read per-core CPU tick counters using host_processor_info.
 enum PerCoreCPUReader {
     /// Reads per-core CPU tick counters.
@@ -74,6 +82,7 @@ class SystemMonitor: ObservableObject {
     private var lastNetworkStats: (bytesIn: UInt32, bytesOut: UInt32)?
     private var lastNetworkTime: Date?
     private var previousCoreTicks: [[UInt64]]?
+    private var previousCPUTicks: CPUTicks?
     
     // MARK: - Public Methods
     
@@ -144,27 +153,27 @@ class SystemMonitor: ObservableObject {
     }
     
     nonisolated private func updateCPUUsage() async {
-        let host = mach_host_self()
-        var count = mach_msg_type_number_t(MemoryLayout<host_cpu_load_info_data_t>.size / MemoryLayout<integer_t>.size)
-        var cpuLoadInfo = host_cpu_load_info_data_t()
+        guard let current = SystemMetricsReader.readCPUTicks() else { return }
         
-        let result = withUnsafeMutablePointer(to: &cpuLoadInfo) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
-                host_statistics(host, HOST_CPU_LOAD_INFO, $0, &count)
+        let previous = await MainActor.run { previousCPUTicks }
+        
+        if let previous = previous {
+            if let usage = SystemMetricsReader.calculateCPUUsage(previous: previous, current: current) {
+                await MainActor.run {
+                    cpuUsage = usage
+                    previousCPUTicks = current
+                }
+            } else {
+                // Zero delta: update ticks anyway for next cycle
+                await MainActor.run {
+                    previousCPUTicks = current
+                }
             }
-        }
-        
-        if result == KERN_SUCCESS {
-            let user = Double(cpuLoadInfo.cpu_ticks.0)
-            let system = Double(cpuLoadInfo.cpu_ticks.1)
-            let idle = Double(cpuLoadInfo.cpu_ticks.2)
-            let nice = Double(cpuLoadInfo.cpu_ticks.3)
-            
-            let total = user + system + idle + nice
-            let usage = ((user + system + nice) / total) * 100.0
-            
+        } else {
+            // First read: store ticks and initialize to 0
             await MainActor.run {
-                cpuUsage = min(max(usage, 0), 100)
+                cpuUsage = 0.0
+                previousCPUTicks = current
             }
         }
     }
@@ -194,43 +203,16 @@ class SystemMonitor: ObservableObject {
     }
     
     nonisolated private func updateMemoryUsage() async {
-        var vmStats = vm_statistics64()
-        var count = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.size / MemoryLayout<integer_t>.size)
-        
-        let result = withUnsafeMutablePointer(to: &vmStats) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
-                host_statistics64(mach_host_self(), HOST_VM_INFO64, $0, &count)
-            }
-        }
-        
-        if result == KERN_SUCCESS {
-            let pageSize = vm_kernel_page_size
-            let totalMemory = ProcessInfo.processInfo.physicalMemory
-            let freeMemory = UInt64(vmStats.free_count) * UInt64(pageSize)
-            let usedMemory = totalMemory - freeMemory
-            
-            let usage = (Double(usedMemory) / Double(totalMemory)) * 100.0
-            await MainActor.run {
-                memoryUsage = usage
-            }
+        guard let usage = SystemMetricsReader.readMemoryUsage() else { return }
+        await MainActor.run {
+            memoryUsage = usage
         }
     }
     
     nonisolated private func updateDiskUsage() async {
-        let fileManager = FileManager.default
-        
-        do {
-            let attributes = try fileManager.attributesOfFileSystem(forPath: "/")
-            if let totalSize = attributes[.systemSize] as? NSNumber,
-               let freeSize = attributes[.systemFreeSize] as? NSNumber {
-                let usedSize = totalSize.uint64Value - freeSize.uint64Value
-                let usage = (Double(usedSize) / Double(totalSize.uint64Value)) * 100.0
-                await MainActor.run {
-                    diskUsage = usage
-                }
-            }
-        } catch {
-            NSLog("Error getting disk usage: %@", error.localizedDescription)
+        guard let usage = SystemMetricsReader.readDiskUsage() else { return }
+        await MainActor.run {
+            diskUsage = usage
         }
     }
     
@@ -247,19 +229,14 @@ class SystemMonitor: ObservableObject {
         
         let (lastStats, lastTime) = await MainActor.run { (lastNetworkStats, lastNetworkTime) }
         
-        if let lastStats = lastStats,
-           let lastTime = lastTime {
-            let timeDiff = currentTime.timeIntervalSince(lastTime)
-            let bytesInDiff = Int64(bytesIn) - Int64(lastStats.bytesIn)
-            let bytesOutDiff = Int64(bytesOut) - Int64(lastStats.bytesOut)
-            
-            // Convert to bytes per second, then to Mbps
-            let downloadSpeed = Double(bytesInDiff) / timeDiff / 1_000_000 * 8
-            let uploadSpeed = Double(bytesOutDiff) / timeDiff / 1_000_000 * 8
+        if let lastStats = lastStats, let lastTime = lastTime {
+            let previous = (bytesIn: lastStats.bytesIn, bytesOut: lastStats.bytesOut, time: lastTime)
+            let current = (bytesIn: bytesIn, bytesOut: bytesOut, time: currentTime)
+            let speeds = SystemMetricsReader.calculateNetworkSpeeds(previous: previous, current: current)
             
             await MainActor.run {
-                networkDownloadSpeed = downloadSpeed
-                networkUploadSpeed = uploadSpeed
+                networkDownloadSpeed = speeds.downloadSpeed
+                networkUploadSpeed = speeds.uploadSpeed
                 lastNetworkStats = (bytesIn: bytesIn, bytesOut: bytesOut)
                 lastNetworkTime = currentTime
             }
@@ -272,43 +249,24 @@ class SystemMonitor: ObservableObject {
     }
     
     nonisolated private func updateBatteryInfo() async {
-        // Simplified battery monitoring to avoid Core Foundation memory issues
-        // For now, we'll disable battery monitoring to prevent crashes
-        // This can be re-implemented later with proper memory management
-        
-        // Check if we're on a MacBook (has battery)
-        let model = SystemInfoReader.getMacModel()
-        if model.contains("MacBook") {
-            // Simulate battery level for MacBooks
-            await MainActor.run {
-                batteryLevel = 85.0 // Simulated battery level
-                batteryHealth = "Good"
-            }
-        } else {
-            // Desktop Mac - no battery
-            await MainActor.run {
-                batteryLevel = 0
-                batteryHealth = "N/A"
-            }
+        let info = SystemMetricsReader.readBatteryInfo()
+        await MainActor.run {
+            batteryLevel = info.level
+            batteryHealth = info.health
         }
     }
     
     nonisolated private func updateTemperature() async {
-        // Simplified temperature reading based on CPU usage
-        // In a real implementation, you'd use IOKit to read from thermal sensors
-        // For now, we'll simulate temperature based on CPU usage
         let currentCPU = await MainActor.run { cpuUsage }
-        let temp = 30.0 + (currentCPU * 0.5) // Base temp + CPU load factor
+        let temp = SystemMetricsReader.simulateTemperature(cpuUsage: currentCPU)
         await MainActor.run {
             temperature = temp
         }
     }
     
     nonisolated private func updateFanSpeed() async {
-        // This would require more complex IOKit calls to read fan speeds
-        // For now, we'll simulate based on CPU usage
         let currentCPU = await MainActor.run { cpuUsage }
-        let speed = currentCPU * 50.0 // RPM proportional to CPU usage
+        let speed = SystemMetricsReader.simulateFanSpeed(cpuUsage: currentCPU)
         await MainActor.run {
             fanSpeed = speed
         }

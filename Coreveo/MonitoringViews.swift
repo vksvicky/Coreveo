@@ -19,7 +19,7 @@ struct CPUView: View {
 }
 
 private struct CPUOverallUsageCard: View {
-    let monitor: SystemMonitor
+    @ObservedObject var monitor: SystemMonitor
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -28,7 +28,7 @@ private struct CPUOverallUsageCard: View {
                 .fontWeight(.semibold)
             
             HStack(alignment: .center, spacing: 16) {
-                CPUGauge(usage: monitor.cpuUsage)
+                CPUGauge(monitor: monitor)
                 CPUStatistics(perCoreUsage: monitor.perCoreUsage)
             }
         }
@@ -39,7 +39,7 @@ private struct CPUOverallUsageCard: View {
 }
 
 private struct CPUGauge: View {
-    let usage: Double
+    @ObservedObject var monitor: SystemMonitor
     
     var body: some View {
         ZStack {
@@ -48,14 +48,14 @@ private struct CPUGauge: View {
                 .frame(width: 100, height: 100)
             
             Circle()
-                .trim(from: 0, to: usage / 100.0)
+                .trim(from: 0, to: monitor.cpuUsage / 100.0)
                 .stroke(Color.blue, style: StrokeStyle(lineWidth: 12, lineCap: .round))
                 .frame(width: 100, height: 100)
                 .rotationEffect(.degrees(-90))
-                .animation(.easeInOut, value: usage)
+                .animation(.easeInOut, value: monitor.cpuUsage)
             
             VStack(spacing: 2) {
-                Text("\(Int(usage))%")
+                Text("\(Int(monitor.cpuUsage))%")
                     .font(.system(size: 24, weight: .bold))
                 Text("CPU")
                     .font(.caption)
