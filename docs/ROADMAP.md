@@ -24,7 +24,7 @@ _(Priorities: P0 = critical, P1 = high, P2 = medium, P3 = low)_
   - [ ] Set up IOKit and Core Foundation integration
 
 - [ ] **CPU Monitoring** (P1)
-  - [ ] Real-time CPU usage per core
+  - [x] Real-time CPU usage per core
   - [ ] CPU temperature monitoring
   - [ ] Historical CPU load graphs
   - [ ] Top processes by CPU consumption
@@ -194,7 +194,7 @@ _(mixed priorities, core items marked P0/P1)_
         - [ ] Functionality: show/hide menu bar extra dynamically
       - [ ] Refresh Interval (P0)
         - [x] UI: slider (0.5s–5s) + value label
-        - [ ] Functionality: apply interval to monitoring timer
+        - [x] Functionality: apply interval to monitoring timer
       - [ ] Temperature Units (P2)
         - [x] UI: segmented control (Celsius/Fahrenheit)
         - [ ] Functionality: convert/format temperatures based on selection
@@ -213,6 +213,14 @@ _(mixed priorities, core items marked P0/P1)_
   - [x] In‑app Help window (menu command)
   - [x] Help content (`docs/HELP.md`)
   - [ ] User guide and screenshots
+  - [ ] Markdown viewer polish
+    - [x] Native markdown rendering in Help window
+    - [x] Bundled `HELP.md` lookup across root/docs/full-scan
+    - [x] Pluggable renderer abstraction + tests
+    - [ ] Optional package renderer integration (`swiftui-markdown`)
+    - [ ] Styling theme parity (headings, lists, code blocks)
+    - [ ] Link handling and external URL opening
+    - [ ] In‑app anchors/table of contents (if content grows)
 
 - [ ] **Data Management** (P2)
   - [ ] Data persistence and historical tracking
@@ -228,7 +236,7 @@ _(mixed priorities, core items marked P0/P1)_
 
 - [ ] **Quality Assurance** (P1)
   - [ ] Comprehensive error handling and logging
-  - [x] Automated tests (theme mapping, help window, prefs round‑trip, monitor lifecycle)
+  - [x] Automated tests (theme mapping, help window, prefs round‑trip, monitor lifecycle, per‑core CPU, markdown renderer)
   - [ ] Performance testing and benchmarking
   - [ ] User acceptance testing
 
@@ -333,5 +341,5 @@ _(mixed priorities, core items marked P0/P1)_
 
 ---
 
-*Last Updated: [Current Date]*
+*Last Updated: 2025-10-30*
 *Version: 1.0*
