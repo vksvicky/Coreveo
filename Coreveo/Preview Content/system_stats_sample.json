@@ -1,0 +1,11 @@
+{
+  "cpuUsage": 42.0,
+  "memoryUsage": 68.0,
+  "diskUsage": 55.0,
+  "network": { "uploadMbps": 1.8, "downloadMbps": 12.4 },
+  "battery": { "level": 83, "health": "Good" },
+  "temperatureC": 47.0,
+  "fanRpm": 1250,
+  "perCoreUsage": [0.72, 0.14, 0.55, 0.33]
+}
+

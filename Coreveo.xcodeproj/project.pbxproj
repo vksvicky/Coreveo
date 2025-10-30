@@ -230,15 +230,16 @@
             path = Settings;
 			sourceTree = "<group>";
 		};
-		E2606C032EB26D5200244947 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				A1000001294A1234567890BC /* Assets.xcassets */,
-				A1000001294A1234567890C1 /* Info.plist */,
-			);
-			name = Resources;
-			sourceTree = "<group>";
-		};
+        E2606C032EB26D5200244947 /* Resources */ = {
+            isa = PBXGroup;
+            children = (
+                A1000001294A1234567890BC /* Assets.xcassets */,
+                A1000001294A1234567890C1 /* Info.plist */,
+            );
+            name = Resources;
+            path = Resources;
+            sourceTree = "<group>";
+        };
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
