@@ -26,15 +26,16 @@ Coreveo needs limited system permissions to function. Here’s what each one mea
 
 ### Formulas
 
-Let Δuser, Δsystem, Δnice, Δidle be per‑core tick deltas between two snapshots, and Δtotal = Δuser + Δsystem + Δnice + Δidle.
+Let $Δuser$, $Δsystem$, $Δnice$, $Δidle$ be per‑core tick deltas between two snapshots, and $Δtotal = Δuser + Δsystem + Δnice + Δidle$.
 
 - Per‑core utilization:
-  - usage = (Δuser + Δsystem + Δnice) / Δtotal
-  - Equivalent: usage = 1 − (Δidle / Δtotal)
+    - usage = ($Δuser$ + $Δsystem$ + $Δnice$) / $Δtotal$
+    - Equivalent: usage = 1 − ($Δidle$ / $Δtotal$)
 - Active core threshold:
-  - A core is "active" when usage > 0.05 (5%)
+    - A core is "active" when usage > 0.05 (5%)
 - Peak core:
-  - The core index with max(usage) among all cores in the latest snapshot
+  - The core index with max(usage) among all cores in the latest snapshot  
+  - Formula: $i_peak = arg max_i (usage_i)$
 
 ## General Settings
 

@@ -28,6 +28,7 @@ final class HelpWindowManager {
 }
 
 private struct MarkdownHelpView: View {
+    @State private var themeVersion: Int = 0
     private func loadHelpMarkdown() -> String? {
         if let url = Bundle.main.url(forResource: "HELP", withExtension: "md"),
            let data = try? Data(contentsOf: url),
@@ -56,7 +57,11 @@ private struct MarkdownHelpView: View {
     }
     
     var body: some View {
-        MarkdownViewer(markdown: markdownText)
-            .padding(.vertical, 8)
+        MDView(markdown: markdownText)
+        .preferredColorScheme(ThemeManager.shared.effectiveColorScheme)
+        .id(themeVersion)
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("ThemeDidChange"))) { _ in
+            themeVersion &+= 1
+        }
     }
 }

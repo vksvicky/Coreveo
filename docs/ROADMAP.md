@@ -23,9 +23,9 @@ _(Priorities: P0 = critical, P1 = high, P2 = medium, P3 = low)_
   - [x] Implement basic project structure and dependencies
   - [ ] Set up IOKit and Core Foundation integration
 
-- [ ] **CPU Monitoring** (P1)
+- [ ] **CPU Monitoring** (P1) [WIP]
   - [x] Real-time CPU usage per core
-  - [ ] CPU temperature monitoring
+  - [ ] CPU temperature monitoring [WIP]
   - [ ] Historical CPU load graphs
   - [ ] Top processes by CPU consumption
 

@@ -1,0 +1,74 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.Spotlight-V100
+.Trashes
+
+# Xcode
+DerivedData/
+build/
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+*.xcbkptlist
+*.xcuserstate
+
+# Xcode workspace settings
+*.xcworkspace/xcuserdata/
+*.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings
+
+# Swift Package Manager
+.build/
+Packages/
+Package.pins
+Package.resolved
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.swiftpm/xcode/xcshareddata/IDEDerivedDataCache/
+
+# CocoaPods (if ever used)
+Pods/
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+!default.mode1v3
+!default.mode2v3
+!default.perspectivev3
+
+# Carthage (if ever used)
+Carthage/Build/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output
+
+# Swift/LLDB
+*.dSYM
+*.dSYM.zip
+
+# Logs
+*.log
+
+# Temporary files
+*.swp
+*.swo
+*~
+*.tmp
+tmp/
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Bundle artifacts
+Coreveo.app/
+Coreveo.debug.dylib
+
+

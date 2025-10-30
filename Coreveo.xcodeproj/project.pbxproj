@@ -32,10 +32,13 @@
 		E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */; };
 		E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */; };
 		E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */; };
-        E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
+		E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
         E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000002EB4000000000001 /* MarkdownViewer.swift */; };
+        E30000102EB4B10000000001 /* MDParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000112EB4B10000000002 /* MDParser.swift */; };
+        E30000122EB4B10000000003 /* MDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000132EB4B10000000004 /* MDView.swift */; };
         E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000062EB4A10000000003 /* MarkdownViewerTests.swift */; };
         E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000072EB4A10000000004 /* MarkdownBDDTests.swift */; };
+        E30000162EB4B30000000007 /* MDParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000152EB4B30000000006 /* MDParserTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -78,13 +81,16 @@
 		E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsSettingsView.swift; sourceTree = "<group>"; };
 		E2606BF02EB26A0000244947 /* HelpWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpWindow.swift; sourceTree = "<group>"; };
         E30000002EB4000000000001 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
+        E30000112EB4B10000000002 /* MDParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDParser.swift; sourceTree = "<group>"; };
+        E30000132EB4B10000000004 /* MDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDView.swift; sourceTree = "<group>"; };
 		E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsTests.swift; sourceTree = "<group>"; };
 		E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsCalculator.swift; sourceTree = "<group>"; };
 		E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorCPUTests.swift; sourceTree = "<group>"; };
 		E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMetricsReader.swift; sourceTree = "<group>"; };
-        E2606C052EB26D8000244947 /* CPULayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULayoutTests.swift; sourceTree = "<group>"; };
+		E2606C052EB26D8000244947 /* CPULayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULayoutTests.swift; sourceTree = "<group>"; };
         E30000062EB4A10000000003 /* MarkdownViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewerTests.swift; sourceTree = "<group>"; };
         E30000072EB4A10000000004 /* MarkdownBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownBDDTests.swift; sourceTree = "<group>"; };
+        E30000152EB4B30000000006 /* MDParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDParserTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,7 +135,7 @@
 			path = Coreveo;
 			sourceTree = "<group>";
 		};
-        A1000001294A1234567890C8 /* CoreveoTests */ = {
+		A1000001294A1234567890C8 /* CoreveoTests */ = {
 			isa = PBXGroup;
 			children = (
 				A1000001294A1234567890BE /* CoreveoTests.swift */,
@@ -145,11 +151,12 @@
             children = (
                 E30000062EB4A10000000003 /* MarkdownViewerTests.swift */,
                 E30000072EB4A10000000004 /* MarkdownBDDTests.swift */,
+                E30000152EB4B30000000006 /* MDParserTests.swift */,
             );
             name = Views;
             path = Views;
-            sourceTree = "<group>";
-        };
+			sourceTree = "<group>";
+		};
 		A1000001294A1234567890C9 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -179,15 +186,15 @@
 			path = docs;
 			sourceTree = "<group>";
 		};
-        E2606BFD2EB26D1000244947 /* Monitoring */ = {
-            isa = PBXGroup;
-            children = (
+		E2606BFD2EB26D1000244947 /* Monitoring */ = {
+			isa = PBXGroup;
+			children = (
 				A1000001294A1234567890B4 /* SystemMonitor.swift */,
 				E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */,
 				5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */,
 				E2606BFB2EB26E0000244947 /* SystemMetricsReader.swift */,
 			);
-            name = Monitoring;
+			name = Monitoring;
             path = Monitoring;
 			sourceTree = "<group>";
 		};
@@ -201,9 +208,9 @@
 			name = Monitoring;
 			sourceTree = "<group>";
 		};
-        E2606C012EB26D5000244947 /* Views */ = {
-            isa = PBXGroup;
-            children = (
+		E2606C012EB26D5000244947 /* Views */ = {
+			isa = PBXGroup;
+			children = (
 				A1000001294A1234567890AE /* ContentView.swift */,
 				A1000001294A1234567890B0 /* SidebarView.swift */,
 				A1000001294A1234567890B2 /* MenuBarView.swift */,
@@ -212,14 +219,25 @@
 				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
 				E2606BF02EB26A0000244947 /* HelpWindow.swift */,
                 E30000002EB4000000000001 /* MarkdownViewer.swift */,
+                E30000142EB4B10000000005 /* Markdown */,
 			);
 			name = Views;
             path = Views;
 			sourceTree = "<group>";
 		};
-        E2606C022EB26D5100244947 /* Settings */ = {
+        E30000142EB4B10000000005 /* Markdown */ = {
             isa = PBXGroup;
             children = (
+                E30000112EB4B10000000002 /* MDParser.swift */,
+                E30000132EB4B10000000004 /* MDView.swift */,
+            );
+            name = Markdown;
+            path = Markdown;
+			sourceTree = "<group>";
+		};
+		E2606C022EB26D5100244947 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
 				A1000001294A1234567890E8 /* SettingsView.swift */,
 				E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */,
 				E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */,
@@ -230,16 +248,16 @@
             path = Settings;
 			sourceTree = "<group>";
 		};
-        E2606C032EB26D5200244947 /* Resources */ = {
-            isa = PBXGroup;
-            children = (
-                A1000001294A1234567890BC /* Assets.xcassets */,
-                A1000001294A1234567890C1 /* Info.plist */,
-            );
-            name = Resources;
+		E2606C032EB26D5200244947 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001294A1234567890BC /* Assets.xcassets */,
+				A1000001294A1234567890C1 /* Info.plist */,
+			);
+			name = Resources;
             path = Resources;
-            sourceTree = "<group>";
-        };
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -353,6 +371,8 @@
 				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
 				E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */,
                 E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */,
+                E30000102EB4B10000000001 /* MDParser.swift in Sources */,
+                E30000122EB4B10000000003 /* MDView.swift in Sources */,
 				E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */,
 				E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */,
 				A1000001294A1234567890AB /* CoreveoApp.swift in Sources */,
@@ -364,7 +384,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-        A1000001294A1234567890D0 /* Sources */ = {
+		A1000001294A1234567890D0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -374,6 +394,7 @@
 				E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */,
                 E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */,
                 E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */,
+                E30000162EB4B30000000007 /* MDParserTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -34,8 +34,8 @@ struct CoreveoApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .frame(minWidth: 800, minHeight: 600)
+                ContentView()
+                    .frame(minWidth: 800, minHeight: 600)
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
@@ -283,9 +283,9 @@ struct CoreveoApp: App {
                         // It's a file, try to read attributes
                         _ = try fileManager.attributesOfItem(atPath: path)
                         NSLog("[App] ✅ Full Disk Access GRANTED - accessed file \(path)")
-                        return true
-                    }
-                }
+                return true
+            }
+        }
             } catch let error as NSError {
                 NSLog("[App]   ❌ Access denied: \(error.domain) code:\(error.code) - \(error.localizedDescription)")
                 
@@ -338,7 +338,7 @@ struct CoreveoApp: App {
 }
 
 // MARK: - Help View
- 
+
 /// App delegate for handling macOS-specific functionality
 class AppDelegate: NSObject, NSApplicationDelegate {
     private var settingsWindow: NSWindow?
@@ -413,7 +413,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         self.settingsWindow = newWindow
         
         newWindow.makeKeyAndOrderFront(nil)
-    }
+        }
 
     
 }
