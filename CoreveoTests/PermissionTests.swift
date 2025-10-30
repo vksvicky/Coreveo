@@ -1,8 +1,7 @@
-import XCTest
 @testable import Coreveo
+import XCTest
 
 class PermissionTests: XCTestCase {
-    
     // MARK: - Permission Tests
     
     func testAllPermissionsNotGranted() async throws {

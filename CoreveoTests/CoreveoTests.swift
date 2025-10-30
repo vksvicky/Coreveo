@@ -1,6 +1,6 @@
+import AppKit
 @testable import Coreveo
 import XCTest
-import AppKit
 
 @MainActor
 final class CoreveoTests: XCTestCase {
@@ -96,9 +96,9 @@ final class CoreveoTests: XCTestCase {
     func testShowMenuBarItemPreferenceRoundTrip() throws {
         let defaults = UserDefaults.standard
         defaults.set(true, forKey: "showMenuBarItem")
-        XCTAssertEqual(defaults.bool(forKey: "showMenuBarItem"), true)
+        XCTAssertTrue(defaults.bool(forKey: "showMenuBarItem"))
         defaults.set(false, forKey: "showMenuBarItem")
-        XCTAssertEqual(defaults.bool(forKey: "showMenuBarItem"), false)
+        XCTAssertFalse(defaults.bool(forKey: "showMenuBarItem"))
     }
 
     // MARK: - SystemMonitor stability
