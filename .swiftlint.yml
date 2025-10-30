@@ -27,8 +27,6 @@ opt_in_rules:
   - contains_over_range_nil_comparison
   - discouraged_object_literal
   - empty_collection_literal
-  - empty_count
-  - empty_string
   - enum_case_associated_values_count
   - explicit_init
   - extension_access_modifier
@@ -36,10 +34,8 @@ opt_in_rules:
   - fatal_error_message
   - file_header
   - first_where
-  - force_unwrapping
   - function_default_parameter_at_end
   - identical_operands
-  - implicitly_unwrapped_optional
   - joined_default_parameter
   - last_where
   - legacy_random
@@ -55,7 +51,6 @@ opt_in_rules:
   - number_separator
   - object_literal
   - operator_usage_whitespace
-  - overridden_super_call
   - pattern_matching_keywords
   - prefer_self_type_over_type_of_self
   - prefer_zero_over_explicit_init
@@ -65,24 +60,19 @@ opt_in_rules:
   - quick_discouraged_call
   - quick_discouraged_focused_test
   - quick_discouraged_pending_test
-  - redundant_nil_coalescing
-  - redundant_type_annotation
   - required_enum_case
   - single_test_class
   - sorted_first_last
   - sorted_imports
   - static_operator
   - strong_iboutlet
-  - switch_case_on_newline
   - toggle_bool
   - unavailable_function
   - unneeded_parentheses_in_closure_argument
   - untyped_error_in_catch
-  - vertical_parameter_alignment_on_call
   - vertical_whitespace_closing_braces
   - vertical_whitespace_opening_braces
   - xct_specific_matcher
-  - yoda_condition
 
 # Included paths (Swift source files only)
 included:

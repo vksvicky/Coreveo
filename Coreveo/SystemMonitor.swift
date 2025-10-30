@@ -1,13 +1,19 @@
 import AppKit
 import Foundation
 import IOKit
-import IOKit.pwr_mgt
 import IOKit.ps
+import IOKit.pwr_mgt
 import SystemConfiguration
 
-/// Main system monitoring class that collects data from various macOS APIs
+/// Main system monitoring class that collects data from various macOS APIs.
+///
+/// This object owns a coalesced `DispatchSourceTimer` that periodically
+/// samples system metrics on a utility queue and publishes them to the UI
+/// on the main actor. Use `startMonitoring()` to begin sampling and
+/// `stopMonitoring()` to halt sampling. You can change the sampling cadence
+/// with `setUpdateInterval(seconds:)`.
 @MainActor
-public class SystemMonitor: ObservableObject {
+class SystemMonitor: ObservableObject {
     static let shared = SystemMonitor()
     // MARK: - Published Properties
     
@@ -19,11 +25,14 @@ public class SystemMonitor: ObservableObject {
     @Published var batteryLevel: Double = 85.0
     @Published var batteryHealth: String = "Good"
     @Published var temperature: Double = 45.0
-    @Published var fanSpeed: Double = 1200.0
+    @Published var fanSpeed: Double = 1_200.0
     
     // MARK: - Private Properties
     
     private var monitoringTimer: Timer?
+    private var dispatchTimer: DispatchSourceTimer?
+    private let monitoringQueue = DispatchQueue(label: "club.cycleruncode.coreveo.monitor", qos: .utility)
+    private var updateIntervalSeconds: TimeInterval = 1.0
     private var lastNetworkStats: (bytesIn: UInt32, bytesOut: UInt32)?
     private var lastNetworkTime: Date?
     
@@ -33,24 +42,50 @@ public class SystemMonitor: ObservableObject {
         // Initialize with default values
     }
     
-    public func startMonitoring() {
-        // Start monitoring with 1-second intervals
-        monitoringTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return }
+    /// Begin periodic sampling of system metrics.
+    func startMonitoring() {
+        // Read stored interval if available
+        let stored = UserDefaults.standard.double(forKey: "refreshIntervalSeconds")
+        if stored > 0 { updateIntervalSeconds = stored }
+
+        // Cancel any existing timer
+        dispatchTimer?.cancel()
+        dispatchTimer = nil
+
+        // Create a coalesced dispatch timer on a utility queue
+        let timer = DispatchSource.makeTimerSource(queue: monitoringQueue)
+        timer.schedule(deadline: .now(), repeating: updateIntervalSeconds, leeway: .milliseconds(200))
+        timer.setEventHandler { [weak self] in
+            guard let self else { return }
             Task { @MainActor in
                 await self.updateSystemStats()
             }
         }
-        
-        // Initial update
+        dispatchTimer = timer
+        timer.resume()
+
+        // One immediate update for UI responsiveness
         Task { @MainActor in
             await updateSystemStats()
         }
     }
     
-    public func stopMonitoring() {
+    /// Stop periodic sampling and release timer resources.
+    func stopMonitoring() {
         monitoringTimer?.invalidate()
         monitoringTimer = nil
+        dispatchTimer?.cancel()
+        dispatchTimer = nil
+    }
+
+    /// Update the monitoring interval at runtime (applies on next tick)
+    /// Update the monitoring interval.
+    /// - Parameter seconds: New sampling interval in seconds; must be > 0.
+    func setUpdateInterval(seconds: TimeInterval) {
+        guard seconds > 0 else { return }
+        updateIntervalSeconds = seconds
+        // Re-schedule to apply immediately
+        startMonitoring()
     }
     
     // MARK: - Private Methods
