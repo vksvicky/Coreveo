@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		39DED65E8976D174C114842B /* SystemInfoReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */; };
 		A1000001294A1234567890AB /* CoreveoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890AC /* CoreveoApp.swift */; };
 		A1000001294A1234567890AD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890AE /* ContentView.swift */; };
 		A1000001294A1234567890AF /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890B0 /* SidebarView.swift */; };
@@ -25,6 +26,10 @@
 		E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */; };
 		E2606BE72EB268E400244947 /* PermissionsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */; };
 		E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF02EB26A0000244947 /* HelpWindow.swift */; };
+		E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */; };
+		E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */; };
+		E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */; };
+		E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemInfoReader.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890AC /* CoreveoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreveoApp.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890B0 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -58,10 +64,12 @@
 		E2606BD62EB2683100244947 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
 		E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceSettingsView.swift; sourceTree = "<group>"; };
 		E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
-		E2606BE02EB268D600244947 /* SettingsComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsComponents.swift; sourceTree = "<group>"; };
-		E2606BE12EB268D600244947 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsSettingsView.swift; sourceTree = "<group>"; };
 		E2606BF02EB26A0000244947 /* HelpWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpWindow.swift; sourceTree = "<group>"; };
+		E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsTests.swift; sourceTree = "<group>"; };
+		E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPUMetricsCalculator.swift; sourceTree = "<group>"; };
+		E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorCPUTests.swift; sourceTree = "<group>"; };
+		E2606C052EB26D8000244947 /* CPULayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CPULayoutTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,25 +103,12 @@
 			isa = PBXGroup;
 			children = (
 				A1000001294A1234567890AC /* CoreveoApp.swift */,
-				A1000001294A1234567890AE /* ContentView.swift */,
-				A1000001294A1234567890B0 /* SidebarView.swift */,
-				E2606BD62EB2683100244947 /* SettingsComponents.swift */,
-				A1000001294A1234567890B2 /* MenuBarView.swift */,
-				A1000001294A1234567890B4 /* SystemMonitor.swift */,
-				A1000001294A1234567890B6 /* DashboardView.swift */,
-				A1000001294A1234567890B8 /* MonitoringViews.swift */,
-				E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */,
-				E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */,
-				E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */,
-				E2606BE02EB268D600244947 /* SettingsComponents.swift */,
-				E2606BE12EB268D600244947 /* SettingsView.swift */,
-				E2606BF02EB26A0000244947 /* HelpWindow.swift */,
-				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
-				A1000001294A1234567890BC /* Assets.xcassets */,
-				A1000001294A1234567890C1 /* Info.plist */,
-				A1000001294A1234567890E4 /* Preview Content */,
+				E2606C012EB26D5000244947 /* Views */,
+				E2606C022EB26D5100244947 /* Settings */,
+				E2606BFD2EB26D1000244947 /* Monitoring */,
 				A1000001294A1234567890E6 /* ThemeManager.swift */,
-				A1000001294A1234567890E8 /* SettingsView.swift */,
+				E2606C032EB26D5200244947 /* Resources */,
+				A1000001294A1234567890E4 /* Preview Content */,
 			);
 			path = Coreveo;
 			sourceTree = "<group>";
@@ -123,6 +118,7 @@
 			children = (
 				A1000001294A1234567890BE /* CoreveoTests.swift */,
 				A1000001294A1234567890C3 /* CoreveoTestsInfo.plist */,
+				E2606BFE2EB26D1D00244947 /* Monitoring */,
 			);
 			path = CoreveoTests;
 			sourceTree = "<group>";
@@ -142,6 +138,61 @@
 				A1000001294A1234567890E3 /* PreviewContent.swift */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		E2606BFD2EB26D1000244947 /* Monitoring */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001294A1234567890B4 /* SystemMonitor.swift */,
+				E2606BF42EB26B1000244947 /* CPUMetricsCalculator.swift */,
+				5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */,
+			);
+			name = Monitoring;
+			sourceTree = "<group>";
+		};
+		E2606BFE2EB26D1D00244947 /* Monitoring */ = {
+			isa = PBXGroup;
+			children = (
+				E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */,
+				E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */,
+				E2606C052EB26D8000244947 /* CPULayoutTests.swift */,
+			);
+			name = Monitoring;
+			sourceTree = "<group>";
+		};
+		E2606C012EB26D5000244947 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001294A1234567890AE /* ContentView.swift */,
+				A1000001294A1234567890B0 /* SidebarView.swift */,
+				A1000001294A1234567890B2 /* MenuBarView.swift */,
+				A1000001294A1234567890B6 /* DashboardView.swift */,
+				A1000001294A1234567890B8 /* MonitoringViews.swift */,
+				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
+				E2606BF02EB26A0000244947 /* HelpWindow.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		E2606C022EB26D5100244947 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001294A1234567890E8 /* SettingsView.swift */,
+				E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */,
+				E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */,
+				E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */,
+				E2606BD62EB2683100244947 /* SettingsComponents.swift */,
+			);
+			name = Settings;
+			sourceTree = "<group>";
+		};
+		E2606C032EB26D5200244947 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001294A1234567890BC /* Assets.xcassets */,
+				A1000001294A1234567890C1 /* Info.plist */,
+			);
+			name = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -254,11 +305,13 @@
 				E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */,
 				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
 				E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */,
+				E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */,
 				A1000001294A1234567890AB /* CoreveoApp.swift in Sources */,
 				A1000001294A1234567890E2 /* PreviewContent.swift in Sources */,
 				A1000001294A1234567890E5 /* ThemeManager.swift in Sources */,
 				E2606BE72EB268E400244947 /* PermissionsSettingsView.swift in Sources */,
 				A1000001294A1234567890E7 /* SettingsView.swift in Sources */,
+				39DED65E8976D174C114842B /* SystemInfoReader.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +320,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000001294A1234567890BD /* CoreveoTests.swift in Sources */,
+				E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */,
+				E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */,
+				E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
