@@ -5,6 +5,17 @@ import IOKit.ps
 import IOKit.pwr_mgt
 import SystemConfiguration
 
+// Temperature provider abstraction for dependency injection.
+protocol TemperatureProviding {
+    func cpuTemperatureC(currentCPUUsage: Double) -> Double?
+}
+
+struct SimulatedTemperatureProvider: TemperatureProviding {
+    func cpuTemperatureC(currentCPUUsage: Double) -> Double? {
+        SystemMetricsReader.simulateTemperature(cpuUsage: currentCPUUsage)
+    }
+}
+
 /// Represents CPU tick counters for overall CPU usage calculation.
 struct CPUTicks {
     let user: UInt64
@@ -60,6 +71,8 @@ enum PerCoreCPUReader {
 @MainActor
 class SystemMonitor: ObservableObject {
     static let shared = SystemMonitor()
+    // Dependency: temperature provider
+    nonisolated(unsafe) static var temperatureProvider: TemperatureProviding = SimulatedTemperatureProvider()
     // MARK: - Published Properties
     
     @Published var cpuUsage: Double = 25.0
@@ -258,10 +271,14 @@ class SystemMonitor: ObservableObject {
     
     nonisolated private func updateTemperature() async {
         let currentCPU = await MainActor.run { cpuUsage }
-        let temp = SystemMetricsReader.simulateTemperature(cpuUsage: currentCPU)
-        await MainActor.run {
-            temperature = temp
+        if let temp = SystemMonitor.temperatureProvider.cpuTemperatureC(currentCPUUsage: currentCPU) {
+            await MainActor.run { temperature = temp }
         }
+    }
+
+    /// Exposed for tests to drive a single temperature update using the injected provider.
+    func test_updateTemperatureOnce() async {
+        await updateTemperature()
     }
     
     nonisolated private func updateFanSpeed() async {
