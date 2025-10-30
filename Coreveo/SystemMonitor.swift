@@ -185,7 +185,9 @@ class SystemMonitor: ObservableObject {
                 previousCoreTicks = current
             }
         } else {
+            // First read: initialize with zeros so UI shows core count immediately
             await MainActor.run {
+                perCoreUsage = Array(repeating: 0.0, count: current.count)
                 previousCoreTicks = current
             }
         }
