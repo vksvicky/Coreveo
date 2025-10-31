@@ -27,7 +27,9 @@ final class MDParserTests: XCTestCase {
         XCTAssertEqual(nodes[3], .orderedList(items: ["One", "Two"]))
     }
 
+    // swiftlint:disable no_print_statements
     func testParsesCodeBlockWithLanguage() {
+        // This test validates parsing of code blocks containing print statements in string literals
         let md = """
         ```swift
         let x = 1
@@ -42,6 +44,7 @@ final class MDParserTests: XCTestCase {
             XCTAssertTrue(code.contains("print(x)"))
         } else { XCTFail("Expected code block") }
     }
+    // swiftlint:enable no_print_statements
 
     func testEmptyLinesFlushParagraphAndLists() {
         let md = """
@@ -58,5 +61,3 @@ final class MDParserTests: XCTestCase {
         XCTAssertEqual(nodes[2], .paragraph(text: "Second para"))
     }
 }
-
-

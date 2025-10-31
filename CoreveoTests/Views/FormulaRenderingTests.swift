@@ -8,8 +8,8 @@ final class FormulaRenderingTests: XCTestCase {
             .deletingLastPathComponent() // Views
             .deletingLastPathComponent() // CoreveoTests
             .appendingPathComponent("../docs/HELP.md").standardized
-        if let data = try? Data(contentsOf: projectPath), let s = String(data: data, encoding: .utf8) {
-            return s
+        if let data = try? Data(contentsOf: projectPath), let content = String(data: data, encoding: .utf8) {
+            return content
         }
         XCTFail("Unable to load HELP.md from project path: \(projectPath.path)")
         return ""
@@ -34,5 +34,3 @@ final class FormulaRenderingTests: XCTestCase {
         XCTAssertFalse(md.contains("$host_processor_info$"))
     }
 }
-
-

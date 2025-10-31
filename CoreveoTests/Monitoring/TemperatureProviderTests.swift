@@ -11,22 +11,53 @@ private final class MockTempProvider: TemperatureProviding {
 }
 
 final class TemperatureProviderTests: XCTestCase {
-    func testSystemMonitorPublishesTemperatureFromProvider() async throws {
-        // Arrange
-        let mock = MockTempProvider()
-        SystemMonitor.temperatureProvider = mock
-        let monitor = SystemMonitor.shared
-        await MainActor.run { monitor.cpuUsage = 33.0 }
+    func testCompositeUsesPrimaryWhenAvailable() {
+        // Given
+        let primary = MockTempProvider()
+        primary.valueToReturn = 55
+        let fallback = MockTempProvider()
+        fallback.valueToReturn = 99
+        let composite = CompositeTemperatureProvider(primary: primary, fallback: fallback)
 
-        // Act
-        await monitor.test_updateTemperatureOnce()
+        // When
+        let result = composite.cpuTemperatureC(currentCPUUsage: 12.0)
 
-        // Assert
-        await MainActor.run {
-            XCTAssertEqual(Int(monitor.temperature), 42)
+        // Then
+        XCTAssertEqual(result, 55)
+        XCTAssertEqual(Int(primary.lastHint), 12)
+    }
+
+    func testCompositeFallsBackWhenPrimaryNil() {
+        // Given
+        let primary = MockTempProvider()
+        primary.valueToReturn = nil
+        let fallback = MockTempProvider()
+        fallback.valueToReturn = 44
+        let composite = CompositeTemperatureProvider(primary: primary, fallback: fallback)
+
+        // When
+        let result = composite.cpuTemperatureC(currentCPUUsage: 20.0)
+
+        // Then
+        XCTAssertEqual(result, 44)
+        XCTAssertEqual(Int(primary.lastHint), 20)
+    }
+
+    func testSystemMonitorPublishesTemperatureSensorsFromProvider() async throws {
+        // Given
+        struct MockSensors: TemperatureSensorsProviding {
+            func readTemperatureSensors() -> [String: Double]? { ["Battery": 30, "SSD": 29] }
         }
-        XCTAssertEqual(Int(mock.lastHint), 33)
+        SystemMonitor.temperatureSensorsProvider = MockSensors()
+        let monitor = SystemMonitor.shared
+
+        // When
+        await monitor.refreshNow()
+
+        // Then
+        await MainActor.run {
+            XCTAssertEqual(monitor.temperatureSensors["Battery"], 30)
+            XCTAssertEqual(monitor.temperatureSensors["SSD"], 29)
+        }
     }
 }
-
-

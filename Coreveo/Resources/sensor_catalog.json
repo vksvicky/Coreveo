@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "models": [
+    {
+      "modelIdentifier": "MacBookPro11,4",
+      "osMin": "10.15",
+      "sensors": [
+        {
+          "id": "cpu_proximity",
+          "friendlyName": "CPU Proximity",
+          "unit": "celsius",
+          "groups": ["CPU"],
+          "source": {
+            "type": "smc",
+            "key": "TC0P"
+          }
+        },
+        {
+          "id": "cpu_efficiency_core",
+          "friendlyName": "Efficiency Core 1",
+          "unit": "celsius",
+          "groups": ["CPU"],
+          "source": {
+            "type": "smc",
+            "key": "TC0E"
+          }
+        },
+        {
+          "id": "cpu_performance_core",
+          "friendlyName": "Performance Core 1",
+          "unit": "celsius",
+          "groups": ["CPU"],
+          "source": {
+            "type": "smc",
+            "key": "TC0P"
+          }
+        },
+        {
+          "id": "gpu_diode",
+          "friendlyName": "GPU Cluster",
+          "unit": "celsius",
+          "groups": ["GPU"],
+          "source": {
+            "type": "smc",
+            "key": "TG0D"
+          }
+        },
+        {
+          "id": "battery",
+          "friendlyName": "Battery",
+          "unit": "celsius",
+          "groups": ["Battery"],
+          "source": {
+            "type": "smc",
+            "key": "TB0T"
+          }
+        },
+        {
+          "id": "ssd",
+          "friendlyName": "SSD",
+          "unit": "celsius",
+          "groups": ["SSD"],
+          "source": {
+            "type": "smc",
+            "key": "TS0P"
+          }
+        },
+        {
+          "id": "airflow_left",
+          "friendlyName": "Airflow Left",
+          "unit": "celsius",
+          "groups": ["Airflow"],
+          "source": {
+            "type": "smc",
+            "key": "TA0P"
+          }
+        },
+        {
+          "id": "airflow_right",
+          "friendlyName": "Airflow Right",
+          "unit": "celsius",
+          "groups": ["Airflow"],
+          "source": {
+            "type": "smc",
+            "key": "TA1P"
+          }
+        }
+      ]
+    },
+    {
+      "modelIdentifier": "MacBookPro17,1",
+      "osMin": "11.0",
+      "sensors": [
+        {
+          "id": "cpu_die",
+          "friendlyName": "CPU Die",
+          "unit": "celsius",
+          "groups": ["CPU"],
+          "source": {
+            "type": "ioReport",
+            "group": "Thermal",
+            "channel": "CPU Die"
+          }
+        },
+        {
+          "id": "gpu_die",
+          "friendlyName": "GPU Die",
+          "unit": "celsius",
+          "groups": ["GPU"],
+          "source": {
+            "type": "ioReport",
+            "group": "Thermal",
+            "channel": "GPU Die"
+          }
+        },
+        {
+          "id": "processor_power",
+          "friendlyName": "Processor Power",
+          "unit": "watt",
+          "groups": ["CPU"],
+          "source": {
+            "type": "ioReport",
+            "group": "Energy",
+            "channel": "Processor Power"
+          },
+          "transform": {
+            "clampMin": 0
+          }
+        },
+        {
+          "id": "gpu_power",
+          "friendlyName": "GPU Power",
+          "unit": "watt",
+          "groups": ["GPU"],
+          "source": {
+            "type": "ioReport",
+            "group": "Energy",
+            "channel": "GPU Power"
+          },
+          "transform": {
+            "clampMin": 0
+          }
+        }
+      ]
+    }
+  ]
+}
+

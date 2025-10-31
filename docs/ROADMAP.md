@@ -55,9 +55,41 @@ _(Priorities: P0 = critical, P1 = high, P2 = medium, P3 = low)_
 
 - [ ] **Temperature & Fan Control** (P2)
   - [ ] CPU, GPU, and system temperature readings
-  - [ ] Fan speed monitoring and manual control
+  - [ ] Per‑sensor temperature list (efficiency/performance cores, GPU clusters, battery, SSD, airflow, I/O, power, proximity) [WIP]
+  - [ ] Fan speed monitoring (multi‑fan), dashboard average + detail per fan [WIP]
   - [ ] Thermal throttling detection
   - [ ] Overheating alerts
+
+#### Sensor Infrastructure & Mapping (to match TG Pro depth)
+- [x] IOReport pipeline (Apple Silicon + Intel)
+  - [x] Channel enumeration and unit decoding (abstraction + tests)
+  - [ ] Group subscriptions (Thermal, Energy Model, GPU groups) with throttled sampling
+- [x] Versioned Sensor Catalog (per‑model/OS mapping DB)
+  - [x] Schema v1 and loader
+  - [ ] Per‑model/OS key/channel → name/unit/domain mapping
+  - [ ] Unknown sensor quarantine and migration rules
+- [x] Normalization & Calibration
+  - [x] Per‑sensor transforms (scale/offset), sanity filters, smoothing
+  - [ ] De‑dup/aggregate domains (e.g., GPU clusters → GPU temp)
+- [x] Device/OS Detection & Routing
+  - [x] Platform and SoC/GPU family probe (profile model)
+  - [x] Source selection hierarchy (IOReport > IOHWSensor > SMC > powermetrics)
+- [x] Privileged Helper (daemon)
+  - [x] Signed launchd helper + XPC API (scaffold)
+  - [ ] Permissions gating and watchdog
+- [x] Fallback Collectors
+  - [x] `powermetrics` parser (rate‑limited)
+  - [ ] SMART/NVMe readers
+- [x] Update Delivery
+  - [x] Remote config for mapping DB (local override)
+  - [ ] Feature flags/kill switches per sensor group
+- [x] Telemetry
+  - [x] Structured logs for missing/renamed channels and anomalies
+  - [ ] Opt‑in anonymous coverage metrics
+- [ ] Testing Matrix
+  - [ ] Golden IOReport recordings per model/OS
+  - [ ] Regression tests for presence/units
+  - [ ] Fixtures for offline tests
 
 - [ ] **Process Management** (P3)
   - [ ] Running processes with resource usage
@@ -341,5 +373,5 @@ _(mixed priorities, core items marked P0/P1)_
 
 ---
 
-*Last Updated: 2025-10-30*
+*Last Updated: 2025-10-30 (Sensor infra status updated)*
 *Version: 1.0*
