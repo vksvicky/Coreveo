@@ -5,16 +5,7 @@ import IOKit.ps
 import IOKit.pwr_mgt
 import SystemConfiguration
 
-// Temperature provider abstraction for dependency injection.
-protocol TemperatureProviding {
-    func cpuTemperatureC(currentCPUUsage: Double) -> Double?
-}
-
-struct SimulatedTemperatureProvider: TemperatureProviding {
-    func cpuTemperatureC(currentCPUUsage: Double) -> Double? {
-        SystemMetricsReader.simulateTemperature(cpuUsage: currentCPUUsage)
-    }
-}
+// Note: temperature provider types live in TemperatureProvider.swift
 
 /// Represents CPU tick counters for overall CPU usage calculation.
 struct CPUTicks {
@@ -72,7 +63,38 @@ enum PerCoreCPUReader {
 class SystemMonitor: ObservableObject {
     static let shared = SystemMonitor()
     // Dependency: temperature provider
-    nonisolated(unsafe) static var temperatureProvider: TemperatureProviding = SimulatedTemperatureProvider()
+    nonisolated(unsafe) static var temperatureProvider: TemperatureProviding = CompositeTemperatureProvider()
+    nonisolated(unsafe) static var temperatureSensorsProvider: TemperatureSensorsProviding = {
+        // Build raw sensor sources
+        let rawSources: [TemperatureSensorsProviding]
+        if isAppleSilicon() {
+            // On Apple Silicon: SMC has limited sensors, powermetrics requires root
+            // So prioritize SMC (works without root) and make powermetrics optional
+            rawSources = [
+                SMCTemperatureSensorsProvider(),      // Primary: works without root
+                LocalIOReportProvider(),              // Optional: requires root (will fail gracefully)
+                LocalPowermetricsProvider(),          // Optional: requires root (will fail gracefully)
+                SimulatedTemperatureSensorsProvider() // Fallback: ensures some sensors always visible
+            ]
+        } else {
+            rawSources = [
+                SMCTemperatureSensorsProvider(),       // Intel primary source
+                LocalPowermetricsProvider(),          // Optional: requires root
+                SimulatedTemperatureSensorsProvider()  // Fallback
+            ]
+        }
+        
+        // Build raw merged provider
+        let rawProvider = LocalMergedProvider(rawSources)
+        
+        // Apply catalog mappings on top (catalog reads from raw and applies transforms)
+        let catalogProvider = makeCatalogProvider(rawSource: rawProvider)
+        
+        // Merge: catalog applies friendly names/transforms, raw fills in unmapped sensors
+        return LocalCatalogMergedProvider(catalog: catalogProvider, raw: rawProvider)
+    }()
+    nonisolated(unsafe) static var fanProvider: FanProviding = SMCFanProvider()
+
     // MARK: - Published Properties
     
     @Published var cpuUsage: Double = 25.0
@@ -83,7 +105,8 @@ class SystemMonitor: ObservableObject {
     @Published var batteryLevel: Double = 85.0
     @Published var batteryHealth: String = "Good"
     @Published var temperature: Double = 45.0
-    @Published var fanSpeed: Double = 1_200.0
+    @Published var fanSpeeds: [Double] = [1_200.0, 1_220.0]
+    @Published var temperatureSensors: [String: Double] = [:]
     @Published var perCoreUsage: [Double] = []
     
     // MARK: - Private Properties
@@ -101,6 +124,311 @@ class SystemMonitor: ObservableObject {
     
     private init() {
         // Initialize with default values
+    }
+    nonisolated private static func isAppleSilicon() -> Bool {
+        let brand = sysctlString("machdep.cpu.brand_string") ?? ""
+        return brand.contains("Apple")
+    }
+
+    // Catalog-backed provider that applies mappings from raw sensor sources
+    private struct CatalogMappingProvider: TemperatureSensorsProviding {
+        let device: DeviceProfile
+        let catalog: SensorCatalog?
+        let flags: SensorFeatureFlags
+        let rawSource: TemperatureSensorsProviding
+        
+        func readTemperatureSensors() -> [String : Double]? {
+            // Get raw sensor readings first
+            guard let rawReadings = rawSource.readTemperatureSensors() else { return nil }
+            
+            // If no catalog, pass through raw
+            guard let catalog = catalog,
+                  let model = SourceRouter.selectModel(from: catalog, for: device) else {
+                return rawReadings
+            }
+            
+            // Apply catalog mappings: friendly names + transforms
+            var mapped: [String: Double] = [:]
+            var processedRawKeys = Set<String>()
+            
+            for sensor in model.sensors {
+                // Check feature flags
+                if let group = sensor.groups.first, !flags.isEnabled(group: group) { continue }
+                
+                var foundValue: Double?
+                switch sensor.source {
+                case let .ioHwSensor(name):
+                    foundValue = rawReadings[name]
+                    if foundValue != nil { processedRawKeys.insert(name) }
+                case let .smc(key):
+                    foundValue = rawReadings[key]
+                    if foundValue != nil { processedRawKeys.insert(key) }
+                case let .ioReport(_, channel):
+                    foundValue = rawReadings[channel]
+                    if foundValue != nil { processedRawKeys.insert(channel) }
+                case .derived:
+                    continue
+                }
+                
+                if let v = foundValue {
+                    let (normalized, _) = SensorNormalizer.apply(value: v, transform: sensor.transform, previousSmoothed: nil)
+                    mapped[sensor.friendlyName] = normalized
+                }
+            }
+            
+            return mapped.isEmpty ? nil : mapped
+        }
+    }
+
+    nonisolated private static func makeCatalogProvider(rawSource: TemperatureSensorsProviding) -> TemperatureSensorsProviding {
+        let model = sysctlString("hw.model") ?? "Mac"
+        let osString = ProcessInfo.processInfo.operatingSystemVersionString
+        let osVersion: String = {
+            for part in osString.split(separator: " ") { if part.contains(".") { return String(part) } }
+            return "14.0"
+        }()
+        let cpuBrand = sysctlString("machdep.cpu.brand_string") ?? "Apple"
+        let isAppleSilicon = cpuBrand.contains("Apple")
+        let device = DeviceProfile(modelIdentifier: model, osVersion: osVersion, isAppleSilicon: isAppleSilicon)
+        let catalog = loadLocalCatalog()
+        let flags = SensorFeatureFlags()
+        return CatalogMappingProvider(device: device, catalog: catalog, flags: flags, rawSource: rawSource)
+    }
+    
+    nonisolated private static func loadLocalCatalog() -> SensorCatalog? {
+        let fm = FileManager.default
+        
+        // First, try user override in Application Support (takes precedence)
+        if let appSup = fm.urls(for: .applicationSupportDirectory, in: .userDomainMask).first {
+            let dir = appSup.appendingPathComponent("Coreveo", isDirectory: true)
+            let url = dir.appendingPathComponent("sensor_catalog.json")
+            if fm.fileExists(atPath: url.path),
+               let data = try? Data(contentsOf: url),
+               let catalog = try? SensorCatalogLoader.load(from: data) {
+                NSLog("[Coreveo] Loaded sensor catalog from Application Support override: \(url.path)")
+                return catalog
+            }
+        }
+        
+        // Fallback to bundled catalog in Resources
+        if let bundleUrl = Bundle.main.url(forResource: "sensor_catalog", withExtension: "json"),
+           let data = try? Data(contentsOf: bundleUrl),
+           let catalog = try? SensorCatalogLoader.load(from: data) {
+            NSLog("[Coreveo] Loaded sensor catalog from bundle: \(bundleUrl.path)")
+            return catalog
+        }
+        
+        NSLog("[Coreveo] No sensor catalog found - using raw sensors only")
+        return nil
+    }
+
+    nonisolated private static func sysctlString(_ name: String) -> String? {
+        var size: size_t = 0
+        sysctlbyname(name, nil, &size, nil, 0)
+        guard size > 0 else { return nil }
+        var buf = [CChar](repeating: 0, count: size)
+        let res = sysctlbyname(name, &buf, &size, nil, 0)
+        if res == 0 { return String(cString: buf) }
+        return nil
+    }
+
+    // MARK: - Local providers (to avoid cross-file symbol resolution issues)
+    private struct LocalMergedProvider: TemperatureSensorsProviding {
+        let providers: [TemperatureSensorsProviding]
+        init(_ providers: [TemperatureSensorsProviding]) { self.providers = providers }
+        func readTemperatureSensors() -> [String : Double]? {
+            var result: [String: Double] = [:]
+            for p in providers {
+                if let map = p.readTemperatureSensors() {
+                    for (k, v) in map { result[k] = v }
+                }
+            }
+            return result.isEmpty ? nil : result
+        }
+    }
+
+    private struct LocalIOReportProvider: TemperatureSensorsProviding {
+        func readTemperatureSensors() -> [String : Double]? {
+            var result: [String: Double] = [:]
+            
+            // Strategy: On Apple Silicon, powermetrics effectively mirrors IOReport thermal channels
+            // Use it as our IOReport-equivalent source
+            if let text = runPowermetricsForIOReport() {
+                let parsed = PowermetricsParser.parse(text)
+                for (k, v) in parsed.metrics {
+                    // Use channel names that match IOReport conventions
+                    let channelName: String = {
+                        switch k {
+                        case "CPU Die": return "CPU Die"
+                        case "GPU Die": return "GPU Die"
+                        case "Processor Power": return "Processor Power"
+                        case "GPU Power": return "GPU Power"
+                        default: return k
+                        }
+                    }()
+                    result[channelName] = v
+                }
+                if !result.isEmpty {
+                    NSLog("[Coreveo] IOReport (via powermetrics): \(result.count) channels → \(Array(result.keys).sorted())")
+                }
+            }
+            
+            // Also try IORegistry for any thermal sensors exposed there
+            if let thermalSensors = readThermalFromIORegistry() {
+                for (k, v) in thermalSensors {
+                    if result[k] == nil { result[k] = v }
+                }
+            }
+            
+            return result.isEmpty ? nil : result
+        }
+        
+        private func readThermalFromIORegistry() -> [String: Double]? {
+            var result: [String: Double] = [:]
+            
+            // Look for thermal-related services in IORegistry
+            let matching = IOServiceMatching("IOHWSensor")
+            var iterator: io_iterator_t = 0
+            guard IOServiceGetMatchingServices(kIOMainPortDefault, matching, &iterator) == KERN_SUCCESS else {
+                return nil
+            }
+            defer { IOObjectRelease(iterator) }
+            
+            var entry = IOIteratorNext(iterator)
+            while entry != 0 {
+                defer { IOObjectRelease(entry) }
+                
+                var props: Unmanaged<CFMutableDictionary>?
+                guard IORegistryEntryCreateCFProperties(entry, &props, kCFAllocatorDefault, 0) == KERN_SUCCESS,
+                      let unmanaged = props else {
+                    entry = IOIteratorNext(iterator)
+                    continue
+                }
+                
+                let dict = unmanaged.takeRetainedValue() as NSDictionary
+                let unit = (dict["unit"] as? String) ?? (dict["IOHWSensorUnit"] as? String) ?? ""
+                guard let name = dict["name"] as? String,
+                      unit.lowercased().contains("c"),
+                      let rawValue = dict["current-value"] as? NSNumber else {
+                    entry = IOIteratorNext(iterator)
+                    continue
+                }
+                
+                var value = rawValue.doubleValue
+                if let scale = (dict["scaling-factor"] as? NSNumber)?.doubleValue, scale > 0 {
+                    value /= scale
+                } else if value > 1000 {
+                    value /= 256  // Common fixed-point format
+                }
+                
+                if value >= 20.0 && value <= 150.0 {
+                    result[name] = value
+                }
+                
+                entry = IOIteratorNext(iterator)
+            }
+            
+            return result.isEmpty ? nil : result
+        }
+        
+        private static var lastPowermetricsCall: Date?
+        private static var lastErrorLog: Date?
+        private static let powermetricsThrottleSeconds: TimeInterval = 5.0
+        
+        private func runPowermetricsForIOReport() -> String? {
+            // Throttle powermetrics calls (requires root, so avoid spamming)
+            let now = Date()
+            if let last = Self.lastPowermetricsCall, now.timeIntervalSince(last) < Self.powermetricsThrottleSeconds {
+                return nil
+            }
+            Self.lastPowermetricsCall = now
+            
+            let task = Process()
+            task.launchPath = "/usr/bin/powermetrics"
+            task.arguments = ["-n", "1", "--samplers", "thermal"]
+            let stdout = Pipe()
+            let stderr = Pipe()
+            task.standardOutput = stdout
+            task.standardError = stderr
+            do { try task.run() } catch {
+                NSLog("[Coreveo] IOReport: powermetrics failed to run - \(error.localizedDescription)")
+                return nil
+            }
+            task.waitUntilExit()
+            guard task.terminationStatus == 0 else {
+                let errorData = stderr.fileHandleForReading.readDataToEndOfFile()
+                let errorMsg = errorData.isEmpty ? "unknown" : (String(data: errorData, encoding: .utf8) ?? "non-UTF8")
+                // Only log errors once per minute to avoid spam
+                if Self.lastErrorLog == nil || now.timeIntervalSince(Self.lastErrorLog!) >= 60.0 {
+                    NSLog("[Coreveo] IOReport: powermetrics exited with status \(task.terminationStatus) - \(errorMsg.prefix(200))")
+                    Self.lastErrorLog = now
+                }
+                return nil
+            }
+            let data = stdout.fileHandleForReading.readDataToEndOfFile()
+            guard !data.isEmpty, let s = String(data: data, encoding: .utf8) else { return nil }
+            return s
+        }
+    }
+
+    private struct LocalPowermetricsProvider: TemperatureSensorsProviding {
+        func readTemperatureSensors() -> [String : Double]? {
+            guard let text = runOnce() else { return nil }
+            let r = PowermetricsParser.parse(text)
+            return r.metrics.isEmpty ? nil : r.metrics
+        }
+        private static var lastPowermetricsCall: Date?
+        private static let powermetricsThrottleSeconds: TimeInterval = 5.0
+        
+        private func runOnce() -> String? {
+            // Throttle powermetrics calls (requires root)
+            let now = Date()
+            if let last = Self.lastPowermetricsCall, now.timeIntervalSince(last) < Self.powermetricsThrottleSeconds {
+                return nil
+            }
+            Self.lastPowermetricsCall = now
+            
+            let task = Process()
+            task.launchPath = "/usr/bin/powermetrics"
+            task.arguments = ["-n", "1", "--samplers", "thermal"]
+            let stdout = Pipe()
+            let stderr = Pipe()
+            task.standardOutput = stdout
+            task.standardError = stderr
+            do { try task.run() } catch { return nil }
+            task.waitUntilExit()
+            guard task.terminationStatus == 0 else { return nil }
+            let data = stdout.fileHandleForReading.readDataToEndOfFile()
+            guard !data.isEmpty, let s = String(data: data, encoding: .utf8) else { return nil }
+            return s
+        }
+    }
+    
+    // Merges catalog-mapped sensors (friendly names + transforms) with raw unmapped sensors
+    private struct LocalCatalogMergedProvider: TemperatureSensorsProviding {
+        let catalog: TemperatureSensorsProviding
+        let raw: TemperatureSensorsProviding
+        
+        func readTemperatureSensors() -> [String : Double]? {
+            var result: [String: Double] = [:]
+            
+            // Start with catalog-mapped sensors (have friendly names)
+            if let catalogMap = catalog.readTemperatureSensors() {
+                for (k, v) in catalogMap { result[k] = v }
+            }
+            
+            // Add raw sensors for any not in catalog (show unmapped sensors too)
+            if let rawMap = raw.readTemperatureSensors() {
+                for (k, v) in rawMap {
+                    // Only add if not already mapped by catalog
+                    if result[k] == nil {
+                        result[k] = v
+                    }
+                }
+            }
+            
+            return result.isEmpty ? nil : result
+        }
     }
     
     /// Begin periodic sampling of system metrics.
@@ -148,6 +476,11 @@ class SystemMonitor: ObservableObject {
         // Re-schedule to apply immediately
         startMonitoring()
     }
+
+    /// Manually refresh all metrics once. Useful for user-initiated refresh and tests.
+    func refreshNow() async {
+        await updateSystemStats()
+    }
     
     // MARK: - Private Methods
     
@@ -160,7 +493,8 @@ class SystemMonitor: ObservableObject {
             group.addTask { await self.updateNetworkStats() }
             group.addTask { await self.updateBatteryInfo() }
             group.addTask { await self.updateTemperature() }
-            group.addTask { await self.updateFanSpeed() }
+            group.addTask { await self.updateFanSpeeds() }
+            group.addTask { await self.updateTemperatureSensors() }
             group.addTask { await self.updatePerCoreUsage() }
         }
     }
@@ -275,17 +609,17 @@ class SystemMonitor: ObservableObject {
             await MainActor.run { temperature = temp }
         }
     }
-
-    /// Exposed for tests to drive a single temperature update using the injected provider.
-    func test_updateTemperatureOnce() async {
-        await updateTemperature()
-    }
     
-    nonisolated private func updateFanSpeed() async {
-        let currentCPU = await MainActor.run { cpuUsage }
-        let speed = SystemMetricsReader.simulateFanSpeed(cpuUsage: currentCPU)
-        await MainActor.run {
-            fanSpeed = speed
+    nonisolated private func updateFanSpeeds() async {
+        // Derive fan speed from temperature (not CPU) to better match reality.
+        if let rpms = SystemMonitor.fanProvider.fanRPMs() {
+            await MainActor.run { fanSpeeds = rpms }
+        }
+    }
+
+    nonisolated private func updateTemperatureSensors() async {
+        if let map = SystemMonitor.temperatureSensorsProvider.readTemperatureSensors() {
+            await MainActor.run { temperatureSensors = map }
         }
     }
 }

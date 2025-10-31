@@ -331,23 +331,156 @@ struct TemperatureView: View {
     @ObservedObject var monitor = SystemMonitor.shared
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Temperature Monitoring")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                Text("Temperature: \(Int(monitor.temperature))°C")
-                    .font(.title2)
-                
-                Text("Fan Speed: \(Int(monitor.fanSpeed)) RPM")
-                    .font(.title2)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                // Text("Temperature Monitoring")
+                //     .font(.largeTitle)
+                //     .fontWeight(.bold)
+
+                // Quick summary
+                HStack(spacing: 24) {
+                    SummaryTile(title: "CPU", value: "\(Int(monitor.temperature))°C", systemImage: "cpu")
+                    if !monitor.fanSpeeds.isEmpty {
+                        let avg = Int(monitor.fanSpeeds.reduce(0,+)/Double(monitor.fanSpeeds.count))
+                        SummaryTile(title: "Fans (avg)", value: "\(avg) RPM", systemImage: "fan")
+                    }
+                }
+
+                // Fans section
+                if !monitor.fanSpeeds.isEmpty {
+                    SectionHeader(title: "Fans")
+                    VStack(alignment: .leading, spacing: 8) {
+                        ForEach(Array(monitor.fanSpeeds.enumerated()), id: \.offset) { idx, speed in
+                            KeyValueRow(key: idx == 0 ? "Left Side" : "Right Side", value: "\(Int(speed)) RPM")
+                        }
+                    }
+                }
+
+                // Temperatures grouped
+                if !monitor.temperatureSensors.isEmpty {
+                    SectionHeader(title: "Temperatures")
+                    TemperatureDetailList(sensors: monitor.temperatureSensors)
+                }
             }
-            
-            Spacer()
+            .padding()
         }
-        .padding()
         .navigationTitle("Temperature")
+    }
+}
+
+private struct SummaryTile: View {
+    let title: String
+    let value: String
+    let systemImage: String
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: systemImage)
+                .foregroundColor(.accentColor)
+            VStack(alignment: .leading) {
+                Text(title).font(.caption).foregroundColor(.secondary)
+                Text(value).font(.title3).fontWeight(.semibold)
+            }
+        }
+        .padding(12)
+        .background(Color(NSColor.controlBackgroundColor))
+        .cornerRadius(10)
+    }
+}
+
+private struct SectionHeader: View {
+    let title: String
+    var body: some View {
+        Text(title)
+            .font(.headline)
+            .padding(.top, 8)
+    }
+}
+
+private struct KeyValueRow: View {
+    let key: String
+    let value: String
+    var body: some View {
+        HStack {
+            Text(key)
+            Spacer()
+            Text(value).foregroundColor(.secondary)
+        }
+        .font(.subheadline)
+    }
+}
+
+private struct TemperatureDetailList: View {
+    let sensors: [String: Double]
+
+    private var groups: [String: [(String, Double)]] {
+        var map: [String: [(String, Double)]] = [:]
+        for (name, value) in sensors {
+            let group = category(for: name)
+            map[group, default: []].append((name, value))
+        }
+        return map
+    }
+
+    private func category(for name: String) -> String {
+        let n = name.lowercased()
+        if n.hasPrefix("efficiency core") || n.hasPrefix("performance core") { return "CPU" }
+        if n.contains("gpu") { return "GPU" }
+        if n.contains("battery") { return "Battery" }
+        if n.contains("airflow") { return "Airflow" }
+        if n.contains("trackpad") { return "Trackpad" }
+        if n.contains("charger") { return "Charger" }
+        if n.contains("power supply") { return "Power Supply" }
+        if n.contains("thunderbolt") { return "Thunderbolt" }
+        if n.contains("wireless") { return "Wireless" }
+        if n.contains("ssd") { return "SSD" }
+        return "Other"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(groups.keys.sorted(), id: \.self) { key in
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(key).font(.subheadline).foregroundColor(.secondary)
+                    ForEach(groups[key]!.sorted { $0.0 < $1.0 }, id: \.0) { item in
+                        TemperatureBarRow(name: item.0, value: item.1)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct TemperatureBarRow: View {
+    let name: String
+    let value: Double
+    private var color: Color {
+        switch value {
+            case ..<40: return .green
+            case 40..<70: return .yellow
+            default: return .red
+        }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text(name)
+                Spacer()
+                Text("\(Int(value))°C")
+                    .foregroundColor(.secondary)
+            }
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 6)
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(color)
+                        .frame(width: geo.size.width * CGFloat(min(value, 100) / 100.0), height: 6)
+                }
+            }
+            .frame(height: 6)
+        }
+        .font(.subheadline)
     }
 }
 

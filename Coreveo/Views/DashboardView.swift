@@ -77,7 +77,7 @@ private struct DashboardGrid: View {
     }
     
     private var temperatureCard: some View {
-        TemperatureCard(temperature: monitor.temperature, fanSpeed: monitor.fanSpeed)
+        TemperatureCard(temperature: monitor.temperature, fanSpeeds: monitor.fanSpeeds)
             .onTapGesture { selectedTab = 6 }
     }
 }
@@ -215,7 +215,7 @@ struct BatteryCard: View {
 
 struct TemperatureCard: View {
     let temperature: Double
-    let fanSpeed: Double
+    let fanSpeeds: [Double]
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -223,7 +223,7 @@ struct TemperatureCard: View {
             Text("Temperature")
                 .font(.headline)
                 .foregroundColor(.primary)
-            TemperatureCardFan(fanSpeed: fanSpeed)
+            TemperatureCardFan(fanSpeeds: fanSpeeds)
         }
         .padding()
         .background(Color(NSColor.controlBackgroundColor))
@@ -250,14 +250,15 @@ private struct TemperatureCardHeader: View {
 }
 
 private struct TemperatureCardFan: View {
-    let fanSpeed: Double
+    let fanSpeeds: [Double]
     
     var body: some View {
         HStack {
             Image(systemName: "fan")
                 .foregroundColor(.blue)
                 .font(.caption)
-            Text("Fan: \(Int(fanSpeed)) RPM")
+            let avg = fanSpeeds.isEmpty ? 0 : Int(fanSpeeds.reduce(0, +) / Double(fanSpeeds.count))
+            Text("Fan (avg): \(avg) RPM")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
