@@ -37,6 +37,8 @@
 		E251C2282EB4B2B8004E9FF3 /* SmartNvmeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000C2F0001000000000C /* SmartNvmeReader.swift */; };
 		E251C2292EB4B2BE004E9FF3 /* HelperXPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000D2F0001000000000D /* HelperXPC.swift */; };
 		E251C22A2EB4B2C3004E9FF3 /* CoverageMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000E2F0001000000000E /* CoverageMetrics.swift */; };
+		E251C22B2EB4B2D1004E9FF4 /* SystemMonitorProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000F2F0001000000000F /* SystemMonitorProviders.swift */; };
+		E251C22C2EB4B2D2004E9FF5 /* SystemMonitorHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A000102F00010000000010 /* SystemMonitorHelpers.swift */; };
 		E2606BD72EB2683100244947 /* SettingsComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BD62EB2683100244947 /* SettingsComponents.swift */; };
 		E2606BE42EB268D600244947 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */; };
 		E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606BDE2EB268D600244947 /* AppearanceSettingsView.swift */; };
@@ -158,6 +160,8 @@
 		E5A0000C2F0001000000000C /* SmartNvmeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartNvmeReader.swift; sourceTree = "<group>"; };
 		E5A0000D2F0001000000000D /* HelperXPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperXPC.swift; sourceTree = "<group>"; };
 		E5A0000E2F0001000000000E /* CoverageMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverageMetrics.swift; sourceTree = "<group>"; };
+		E5A0000F2F0001000000000F /* SystemMonitorProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorProviders.swift; sourceTree = "<group>"; };
+		E5A000102F00010000000010 /* SystemMonitorHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -280,7 +284,9 @@
 				E5A0000C2F0001000000000C /* SmartNvmeReader.swift */,
 				E5A0000D2F0001000000000D /* HelperXPC.swift */,
 				E5A0000E2F0001000000000E /* CoverageMetrics.swift */,
-				E5A0000F2F0001000000000F /* TemperatureProviderCatalogBacked.swift */,
+				E5A0000F2F0001000000000F /* SystemMonitorProviders.swift */,
+				E5A000102F00010000000010 /* SystemMonitorHelpers.swift */,
+				E5A0000F2F0000010000000F /* TemperatureProviderCatalogBacked.swift */,
 				E5A000102F00010000000010 /* ProviderFactory.swift */,
 				E5A000112F00010000000011 /* PowermetricsSensorsProvider.swift */
 			);
@@ -473,6 +479,8 @@
 				E2606BE52EB268D600244947 /* AppearanceSettingsView.swift in Sources */,
 				E2606BF12EB26A0000244947 /* HelpWindow.swift in Sources */,
 				E251C22A2EB4B2C3004E9FF3 /* CoverageMetrics.swift in Sources */,
+				E251C22B2EB4B2D1004E9FF4 /* SystemMonitorProviders.swift in Sources */,
+				E251C22C2EB4B2D2004E9FF5 /* SystemMonitorHelpers.swift in Sources */,
 				E251C2202EB4B28E004E9FF3 /* SamplingScheduler.swift in Sources */,
 				E251C21E2EB4B279004E9FF3 /* DeviceRouting.swift in Sources */,
 				E251C2232EB4B29E004E9FF3 /* TelemetryEvents.swift in Sources */,

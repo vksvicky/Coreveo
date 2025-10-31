@@ -17,5 +17,3 @@ public final class CoverageMetrics {
 		return counters
 	}
 }
-
-

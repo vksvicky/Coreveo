@@ -3,6 +3,8 @@ import Foundation
 // MARK: - Sensor Catalog Schema (v1)
 
 /// Versioned catalog describing sensors available per Mac model and OS range.
+/// Maps sensor keys and channels to friendly names, units, and transformations
+/// for specific Mac models and OS versions.
 public struct SensorCatalog: Codable, Equatable {
 	/// Schema version of this catalog.
 	public let schemaVersion: Int
@@ -11,6 +13,7 @@ public struct SensorCatalog: Codable, Equatable {
 }
 
 /// Per‑model catalog slice with OS bounds and sensor definitions.
+/// Defines sensor mappings for a specific Mac model within a macOS version range.
 public struct ModelCatalog: Codable, Equatable {
 	/// Model identifier (e.g., "Mac14,5") or SoC id (e.g., "t8112").
 	public let modelIdentifier: String // e.g., "Mac14,5" or SoC id like "t8112"
@@ -23,49 +26,72 @@ public struct ModelCatalog: Codable, Equatable {
 }
 
 /// Declares a single sensor, its source, unit and optional transform.
+/// Defines how to read a sensor, its display name, units, and any normalization needed.
 public struct SensorDefinition: Codable, Equatable {
 	/// Stable internal id (e.g., "cpu.e-core.1").
 	public let id: String              // stable id, e.g., "cpu.e-core.1"
 	/// User‑visible display name.
 	public let friendlyName: String    // user-visible name
-	/// Measurement unit.
-	public let unit: Unit              // Celsius, RPM, Watt, etc.
-	/// Group tags for UI organization.
-	public let groups: [String]        // e.g., ["CPU", "Thermal"]
-	/// Primary collection source.
-	public let source: Source          // where/how to read
-	/// Optional normalization and calibration.
-	public let transform: Transform?   // normalization/calibration
+	/// Physical unit.
+	public let unit: Unit
+	/// Logical grouping tags (e.g., ["CPU", "Thermal"]).
+	public let groups: [String]
+	/// Source specification for reading this sensor.
+	public let source: Source
+	/// Optional calibration/normalization transform.
+	public let transform: Transform?
 
-	public enum Unit: String, Codable { case celsius, rpm, watt, percent, volt, amp }
+	/// Supported sensor units.
+	public enum Unit: String, Codable {
+		case celsius
+		case rpm
+		case watt
+		case percent
+		case volt
+		case amp
+	}
 
-	/// Where/how a sensor value is collected.
+	/// Source specification variants.
 	public enum Source: Codable, Equatable {
 		case ioReport(group: String, channel: String)
 		case smc(key: String)
 		case ioHwSensor(name: String)
-		case derived(dependencies: [String], formula: String) // reserved for future
+		case derived(dependencies: [String], formula: String)
 
-		private enum CodingKeys: String, CodingKey { case type, group, channel, key, name, dependencies, formula }
-		private enum Kind: String, Codable { case ioReport, smc, ioHwSensor, derived }
+		// Custom Codable to handle nested enum
+		private enum CodingKeys: String, CodingKey {
+			case ioReport, smc, ioHwSensor, derived
+		}
 
 		public init(from decoder: Decoder) throws {
 			let container = try decoder.container(keyedBy: CodingKeys.self)
-			let kind = try container.decode(Kind.self, forKey: .type)
-			switch kind {
-			case .ioReport:
-				self = .ioReport(
-					group: try container.decode(String.self, forKey: .group),
-					channel: try container.decode(String.self, forKey: .channel)
-				)
-			case .smc:
-				self = .smc(key: try container.decode(String.self, forKey: .key))
-			case .ioHwSensor:
-				self = .ioHwSensor(name: try container.decode(String.self, forKey: .name))
-			case .derived:
-				self = .derived(
-					dependencies: try container.decode([String].self, forKey: .dependencies),
-					formula: try container.decode(String.self, forKey: .formula)
+			if let ioReportDict = try? container.decode([String: String].self, forKey: .ioReport) {
+				guard let group = ioReportDict["group"], let channel = ioReportDict["channel"] else {
+					throw DecodingError.dataCorruptedError(
+						forKey: .ioReport,
+						in: container,
+						debugDescription: "Missing group or channel"
+					)
+				}
+				self = .ioReport(group: group, channel: channel)
+			} else if let smcKey = try? container.decode(String.self, forKey: .smc) {
+				self = .smc(key: smcKey)
+			} else if let ioHwName = try? container.decode(String.self, forKey: .ioHwSensor) {
+				self = .ioHwSensor(name: ioHwName)
+			} else if let derivedDict = try? container.decode([String: [String]].self, forKey: .derived) {
+				guard let deps = derivedDict["dependencies"], let formula = derivedDict["formula"]?.first else {
+					throw DecodingError.dataCorruptedError(
+						forKey: .derived,
+						in: container,
+						debugDescription: "Missing dependencies or formula"
+					)
+				}
+				self = .derived(dependencies: deps, formula: formula)
+			} else {
+				throw DecodingError.dataCorruptedError(
+					forKey: .ioReport,
+					in: container,
+					debugDescription: "Unknown source type"
 				)
 			}
 		}
@@ -74,35 +100,36 @@ public struct SensorDefinition: Codable, Equatable {
 			var container = encoder.container(keyedBy: CodingKeys.self)
 			switch self {
 			case let .ioReport(group, channel):
-				try container.encode(Kind.ioReport, forKey: .type)
-				try container.encode(group, forKey: .group)
-				try container.encode(channel, forKey: .channel)
+				try container.encode(["group": group, "channel": channel], forKey: .ioReport)
 			case let .smc(key):
-				try container.encode(Kind.smc, forKey: .type)
-				try container.encode(key, forKey: .key)
+				try container.encode(key, forKey: .smc)
 			case let .ioHwSensor(name):
-				try container.encode(Kind.ioHwSensor, forKey: .type)
-				try container.encode(name, forKey: .name)
+				try container.encode(name, forKey: .ioHwSensor)
 			case let .derived(dependencies, formula):
-				try container.encode(Kind.derived, forKey: .type)
-				try container.encode(dependencies, forKey: .dependencies)
-				try container.encode(formula, forKey: .formula)
+				try container.encode(["dependencies": dependencies, "formula": [formula]], forKey: .derived)
 			}
 		}
 	}
 
+	/// Normalization/calibration transform configuration.
 	public struct Transform: Codable, Equatable {
-		public let scale: Double?      // multiply
-		public let offset: Double?     // add
-		public let clampMin: Double?   // optional lower bound
-		public let clampMax: Double?   // optional upper bound
-		public let smoothing: Double?  // EWMA alpha (0..1)
+		/// Scale factor to multiply raw value.
+		public let scale: Double?
+		/// Offset to add after scaling.
+		public let offset: Double?
+		/// Clamp minimum value.
+		public let clampMin: Double?
+		/// Clamp maximum value.
+		public let clampMax: Double?
+		/// EWMA smoothing alpha (0.0 = no smoothing, 1.0 = ignore history).
+		public let smoothing: Double?
 	}
 }
 
 // MARK: - Loader and Validation
 
 /// Loads and validates a `SensorCatalog` from JSON.
+/// Provides static methods to decode sensor catalog JSON and validate its structure.
 public enum SensorCatalogLoader {
 	/// Decode and validate catalog from raw JSON data.
 	public static func load(from jsonData: Data) throws -> SensorCatalog {
@@ -161,4 +188,3 @@ public enum SensorCatalogLoader {
 		}
 	}
 }
-

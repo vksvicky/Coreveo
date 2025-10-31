@@ -10,7 +10,12 @@ final class SamplingScheduler {
 	private var pending = false
 	private let handler: () -> Void
 
-	init(interval: TimeInterval, jitterFraction: Double = 0.05, queue: DispatchQueue = .global(qos: .utility), handler: @escaping () -> Void) {
+	init(
+		interval: TimeInterval,
+		jitterFraction: Double = 0.05,
+		handler: @escaping () -> Void,
+		queue: DispatchQueue = .global(qos: .utility)
+	) {
 		self.interval = max(0.05, interval)
 		self.jitterFraction = max(0.0, min(jitterFraction, 0.2))
 		self.queue = queue
@@ -38,14 +43,14 @@ final class SamplingScheduler {
 
 	private func scheduleTimer() {
 		timer?.cancel()
-		let t = DispatchSource.makeTimerSource(queue: queue)
+		let timerSource = DispatchSource.makeTimerSource(queue: queue)
 		let base = interval
 		let jitter = base * jitterFraction
 		let due = DispatchTime.now() + base + Double.random(in: -jitter...jitter)
-		t.schedule(deadline: due, repeating: base)
-		t.setEventHandler { [weak self] in self?.tick() }
-		t.resume()
-		timer = t
+		timerSource.schedule(deadline: due, repeating: base)
+		timerSource.setEventHandler { [weak self] in self?.tick() }
+		timerSource.resume()
+		timer = timerSource
 	}
 
 	private func tick() {
@@ -72,9 +77,9 @@ final class ValueCache<Value> {
 
 	func get(_ key: String, now: Date = Date()) -> Value? {
 		lock.lock(); defer { lock.unlock() }
-		guard let e = storage[key] else { return nil }
-		if now.timeIntervalSince(e.timestamp) > ttl { storage.removeValue(forKey: key); return nil }
-		return e.value
+		guard let entry = storage[key] else { return nil }
+		if now.timeIntervalSince(entry.timestamp) > ttl { storage.removeValue(forKey: key); return nil }
+		return entry.value
 	}
 
 	func clear() {
@@ -82,5 +87,3 @@ final class ValueCache<Value> {
 		storage.removeAll()
 	}
 }
-
-

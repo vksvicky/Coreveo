@@ -9,7 +9,7 @@ final class SensorQuarantine {
 	private let model: String
 	private let os: String
 
-	init(ttl: TimeInterval = 3600, logger: TelemetryLogging, model: String, os: String) {
+	init(logger: TelemetryLogging, model: String, os: String, ttl: TimeInterval = 3_600) {
 		self.ttl = ttl
 		self.logger = logger
 		self.model = model
@@ -25,5 +25,3 @@ final class SensorQuarantine {
 		logger.record(.missingChannel(model: model, os: os, group: group, channel: channel))
 	}
 }
-
-

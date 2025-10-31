@@ -1,6 +1,8 @@
 import Foundation
 
-/// Applies normalization/calibration transforms to raw sensor values.
+/// Applies normalization and calibration transforms to raw sensor values.
+/// Supports scaling, offset, clamping, and exponential weighted moving average smoothing.
+/// Provides static methods to apply transforms from the sensor catalog to raw sensor readings.
 public struct SensorNormalizer {
 	/// Apply a transform to a raw sensor value.
 	/// - Parameters:
@@ -13,19 +15,17 @@ public struct SensorNormalizer {
 		transform: SensorDefinition.Transform?,
 		previousSmoothed: Double?
 	) -> (value: Double, smoothed: Double?) {
-		guard let t = transform else { return (value, previousSmoothed) }
-		var v = value
-		if let s = t.scale { v *= s }
-		if let o = t.offset { v += o }
-		if let min = t.clampMin { v = max(min, v) }
-		if let maxv = t.clampMax { v = min(maxv, v) }
-		if let alpha = t.smoothing {
-			let prev = previousSmoothed ?? v
-			let smooth = alpha * v + (1 - alpha) * prev
-			return (smooth, smooth)
+		guard let transform = transform else { return (value, previousSmoothed) }
+		var transformedValue = value
+		if let scale = transform.scale { transformedValue *= scale }
+		if let offset = transform.offset { transformedValue += offset }
+		if let min = transform.clampMin { transformedValue = max(min, transformedValue) }
+		if let maxValue = transform.clampMax { transformedValue = min(maxValue, transformedValue) }
+		if let alpha = transform.smoothing {
+			let previous = previousSmoothed ?? transformedValue
+			let smoothed = alpha * transformedValue + (1 - alpha) * previous
+			return (smoothed, smoothed)
 		}
-		return (v, previousSmoothed)
+		return (transformedValue, previousSmoothed)
 	}
 }
-
-

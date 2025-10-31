@@ -21,9 +21,9 @@ import Foundation
 	}
 
 	public required convenience init?(coder: NSCoder) {
-		guard let k = coder.decodeObject(of: NSString.self, forKey: "kind") as String?,
-				let i = coder.decodeObject(of: NSString.self, forKey: "identifier") as String? else { return nil }
-		self.init(kind: k, identifier: i)
+		guard let kind = coder.decodeObject(of: NSString.self, forKey: "kind") as String?,
+				let identifier = coder.decodeObject(of: NSString.self, forKey: "identifier") as String? else { return nil }
+		self.init(kind: kind, identifier: identifier)
 	}
 
 	public func encode(with coder: NSCoder) {
@@ -71,8 +71,8 @@ public final class HelperClient {
 	public func readRestricted(kind: String, identifier: String, completion: @escaping (Result<Double, Error>) -> Void) {
 		let req = HelperRequest(kind: kind, identifier: identifier)
 		service.readRestricted(req) { resp in
-			if resp.ok, let v = resp.value?.doubleValue {
-				completion(.success(v))
+			if resp.ok, let value = resp.value?.doubleValue {
+				completion(.success(value))
 			} else {
 				let reason = resp.message as String? ?? "helper error"
 				completion(.failure(NSError(domain: "HelperClient", code: -1, userInfo: [NSLocalizedDescriptionKey: reason])))
@@ -87,5 +87,3 @@ public final class HelperClient {
         return now.timeIntervalSince(hb) < timeout
     }
 }
-
-

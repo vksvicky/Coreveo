@@ -3,7 +3,7 @@ import Foundation
 /// Reads temperature sensors by invoking powermetrics and parsing its output.
 /// Best‑effort: returns nil if powermetrics is unavailable or access is denied.
 struct PowermetricsSensorsProvider: TemperatureSensorsProviding {
-	func readTemperatureSensors() -> [String : Double]? {
+	func readTemperatureSensors() -> [String: Double]? {
 		guard let text = runPowermetricsOnce() else { return nil }
 		let reading = PowermetricsParser.parse(text)
 		return reading.metrics.isEmpty ? nil : reading.metrics
@@ -31,15 +31,13 @@ struct PowermetricsSensorsProvider: TemperatureSensorsProviding {
 struct MergedTemperatureSensorsProvider: TemperatureSensorsProviding {
 	let providers: [TemperatureSensorsProviding]
 	init(_ providers: [TemperatureSensorsProviding]) { self.providers = providers }
-	func readTemperatureSensors() -> [String : Double]? {
+	func readTemperatureSensors() -> [String: Double]? {
 		var result: [String: Double] = [:]
-		for p in providers {
-			if let map = p.readTemperatureSensors() {
-				for (k, v) in map { result[k] = v }
+		for provider in providers {
+			if let map = provider.readTemperatureSensors() {
+				for (key, value) in map { result[key] = value }
 			}
 		}
 		return result.isEmpty ? nil : result
 	}
 }
-
-

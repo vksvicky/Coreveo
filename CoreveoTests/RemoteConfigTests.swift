@@ -10,7 +10,7 @@ final class RemoteConfigTests: XCTestCase {
 		    {
 		      "modelIdentifier": "Mac14,5",
 		      "sensors": [
-		        {"id": "x", "friendlyName": "CPU", "unit": "celsius", "groups": ["CPU"], "source": {"type": "smc", "key": "TC0P"}}
+		        {"id": "x", "friendlyName": "CPU", "unit": "celsius", "groups": ["CPU"], "source": {"smc": "TC0P"}}
 		      ]
 		    }
 		  ]

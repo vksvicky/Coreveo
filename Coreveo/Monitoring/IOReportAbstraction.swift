@@ -6,6 +6,7 @@ enum IOFeatures {
 }
 
 /// A single IOReport-like channel description.
+/// Represents an IOReport channel for reading thermal/energy metrics.
 public struct IOReportChannel: Equatable {
 	public let group: String
 	public let name: String
@@ -46,16 +47,26 @@ final class IOReportSubscriptionManager {
 	init(reader: IOReportReading, interval: TimeInterval = 0.5) {
 		self.reader = reader
 		// Initialize with empty handler; will be replaced in start()
-		self.scheduler = SamplingScheduler(interval: interval, jitterFraction: 0.05, queue: .global(qos: .utility)) { }
+		self.scheduler = SamplingScheduler(
+			interval: interval,
+			jitterFraction: 0.05,
+			handler: { },
+			queue: .global(qos: .utility)
+		)
 	}
 
 	func start() {
 		scheduler.stop()
 		// Create new scheduler with tick handler that captures self
 		let manager = self
-		let newSched = SamplingScheduler(interval: scheduler.interval, jitterFraction: 0.05, queue: .global(qos: .utility)) {
-			manager.tick()
-		}
+		let newSched = SamplingScheduler(
+			interval: scheduler.interval,
+			jitterFraction: 0.05,
+			handler: {
+				manager.tick()
+			},
+			queue: .global(qos: .utility)
+		)
 		newSched.start()
 		// Replace the scheduler
 		scheduler = newSched
@@ -71,11 +82,9 @@ final class IOReportSubscriptionManager {
 		guard IOFeatures.ioreportEnabled else { return }
 		for (group, subs) in subscriptions {
 			for item in subs {
-				let v = reader.readValue(group: group, channel: item.channel)
-				item.handler(v)
+				let value = reader.readValue(group: group, channel: item.channel)
+				item.handler(value)
 			}
 		}
 	}
 }
-
-

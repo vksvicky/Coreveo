@@ -1,6 +1,8 @@
 import Foundation
 
 /// Minimal device snapshot used for routing without touching system APIs (injectable for tests).
+/// Represents device characteristics used for sensor source routing.
+/// Contains Mac model identifier, OS version, and CPU architecture information.
 public struct DeviceProfile: Equatable {
 	public let modelIdentifier: String   // e.g., "Mac14,5"
 	public let osVersion: String         // e.g., "14.5"
@@ -14,6 +16,8 @@ public struct DeviceProfile: Equatable {
 }
 
 /// Routing helpers for selecting model mappings and determining source priority.
+/// Routes sensor data sources based on device profile and catalog availability.
+/// Selects the best matching model catalog entry for the current device.
 public enum SourceRouter {
 	/// Choose the best matching model catalog entry for the given device.
 	static func selectModel(from catalog: SensorCatalog, for device: DeviceProfile) -> ModelCatalog? {
@@ -23,12 +27,12 @@ public enum SourceRouter {
 			.filter { model in
 				versionInRange(device.osVersion, min: model.osMin, max: model.osMax)
 			}
-			.sorted { lhs, rhs in
+			.min { lhs, rhs in
 				// Prefer tighter upper bound, then higher min version.
-				compareOptionalVersion(rhs.osMax, lhs.osMax) < 0 ||
-				(compareOptionalVersion(rhs.osMax, lhs.osMax) == 0 && compareOptionalVersion(lhs.osMin, rhs.osMin) > 0)
+				let maxCompare = compareOptionalVersion(rhs.osMax, lhs.osMax)
+				if maxCompare != 0 { return maxCompare < 0 }
+				return compareOptionalVersion(lhs.osMin, rhs.osMin) > 0
 			}
-			.first
 	}
 
 	/// Return rank for a source on this device (lower is preferred).
@@ -45,36 +49,38 @@ public enum SourceRouter {
 		}
 	}
 
-	/// Check if a version string v is within [min, max]. Missing bounds are open.
-	static func versionInRange(_ v: String, min: String?, max: String?) -> Bool {
-		if let min = min, compareVersion(v, min) < 0 { return false }
-		if let max = max, compareVersion(v, max) > 0 { return false }
+	/// Check if a version string is within [min, max]. Missing bounds are open.
+	static func versionInRange(_ version: String, min: String?, max: String?) -> Bool {
+		if let min = min, compareVersion(version, min) < 0 { return false }
+		if let max = max, compareVersion(version, max) > 0 { return false }
 		return true
 	}
 
 	/// Compare two dotted version strings (returns -1, 0, 1).
-	static func compareVersion(_ a: String, _ b: String) -> Int {
-		let pa = a.split(separator: ".").compactMap { Int($0) }
-		let pb = b.split(separator: ".").compactMap { Int($0) }
-		let n = max(pa.count, pb.count)
-		for i in 0..<n {
-			let va = i < pa.count ? pa[i] : 0
-			let vb = i < pb.count ? pb[i] : 0
-			if va < vb { return -1 }
-			if va > vb { return 1 }
+	static func compareVersion(_ versionA: String, _ versionB: String) -> Int {
+		let partsA = versionA.split(separator: ".").compactMap { Int($0) }
+		let partsB = versionB.split(separator: ".").compactMap { Int($0) }
+		let maxLength = max(partsA.count, partsB.count)
+		for index in 0..<maxLength {
+			let valueA = index < partsA.count ? partsA[index] : 0
+			let valueB = index < partsB.count ? partsB[index] : 0
+			if valueA < valueB { return -1 }
+			if valueA > valueB { return 1 }
 		}
 		return 0
 	}
 
 	/// Compare optional versions: nil is considered the loosest (sorted after concrete values).
-	private static func compareOptionalVersion(_ a: String?, _ b: String?) -> Int {
-		switch (a, b) {
-		case let (sa?, sb?): return compareVersion(sa, sb)
-		case (nil, nil): return 0
-		case (nil, _): return 1
-		case (_, nil): return -1
+	private static func compareOptionalVersion(_ versionA: String?, _ versionB: String?) -> Int {
+		switch (versionA, versionB) {
+		case let (someA?, someB?):
+			return compareVersion(someA, someB)
+		case (nil, nil):
+			return 0
+		case (nil, _):
+			return 1
+		case (_, nil):
+			return -1
 		}
 	}
 }
-
-

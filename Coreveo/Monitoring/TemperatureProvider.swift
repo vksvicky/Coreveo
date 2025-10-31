@@ -10,6 +10,11 @@ protocol TemperatureSensorsProviding {
     func readTemperatureSensors() -> [String: Double]?
 }
 
+protocol FanProviding {
+    /// Returns fan speeds in RPM.
+    func fanRPMs() -> [Double]?
+}
+
 struct SimulatedTemperatureProvider: TemperatureProviding {
     func cpuTemperatureC(currentCPUUsage: Double) -> Double? {
         SystemMetricsReader.simulateTemperature(cpuUsage: currentCPUUsage)
@@ -25,26 +30,14 @@ struct SMCTemperatureProvider: TemperatureProviding {
     }
 }
 
-struct SimulatedTemperatureSensorsProvider: TemperatureSensorsProviding {
-    func readTemperatureSensors() -> [String : Double]? {
-        [
-            "Efficiency Core 1": 45,
-            "Performance Core 1": 40,
-            "GPU Cluster": 44,
-            "Battery": 29,
-            "SSD": 29,
-            "Airflow Left": 37,
-            "Airflow Right": 38,
-        ]
-    }
-}
-
 /// Tries the real provider first, then falls back to simulation to ensure UI responsiveness.
 struct CompositeTemperatureProvider: TemperatureProviding {
     let primary: TemperatureProviding
     let fallback: TemperatureProviding
-    init(primary: TemperatureProviding = SMCTemperatureProvider(),
-         fallback: TemperatureProviding = SimulatedTemperatureProvider()) {
+    init(
+        primary: TemperatureProviding = SMCTemperatureProvider(),
+        fallback: TemperatureProviding = SimulatedTemperatureProvider()
+    ) {
         self.primary = primary
         self.fallback = fallback
     }
@@ -53,5 +46,3 @@ struct CompositeTemperatureProvider: TemperatureProviding {
             ?? fallback.cpuTemperatureC(currentCPUUsage: currentCPUUsage)
     }
 }
-
-

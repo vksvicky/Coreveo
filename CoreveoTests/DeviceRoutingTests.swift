@@ -12,14 +12,14 @@ final class DeviceRoutingTests: XCTestCase {
 		      "osMin": "14.0",
 		      "osMax": "14.9",
 		      "sensors": [
-		        {"id": "cpu_temp_v14", "friendlyName": "CPU Temp", "unit": "celsius", "groups": ["CPU"], "source": {"type": "ioReport", "group": "Thermal", "channel": "CPU Die"}}
+		        {"id": "cpu_temp_v14", "friendlyName": "CPU Temp", "unit": "celsius", "groups": ["CPU"], "source": {"ioReport": {"group": "Thermal", "channel": "CPU Die"}}}
 		      ]
 		    },
 		    {
 		      "modelIdentifier": "Mac14,5",
 		      "osMin": "15.0",
 		      "sensors": [
-		        {"id": "cpu_temp_v15", "friendlyName": "CPU Temp", "unit": "celsius", "groups": ["CPU"], "source": {"type": "ioReport", "group": "Thermal", "channel": "CPU Die"}}
+		        {"id": "cpu_temp_v15", "friendlyName": "CPU Temp", "unit": "celsius", "groups": ["CPU"], "source": {"ioReport": {"group": "Thermal", "channel": "CPU Die"}}}
 		      ]
 		    }
 		  ]

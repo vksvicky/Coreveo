@@ -1,6 +1,8 @@
 import Foundation
 
 /// Minimal SMART/NVMe reader abstraction (scaffold).
+/// Provides interface for reading disk temperature and life percentage.
+/// Used to monitor SSD health metrics.
 public protocol SmartNvmeReading {
 	func readTemperatureC() -> Double?
 	func readLifePercent() -> Double?
@@ -14,5 +16,3 @@ public final class MockSmartNvmeReader: SmartNvmeReading {
 	public func readTemperatureC() -> Double? { temp }
 	public func readLifePercent() -> Double? { life }
 }
-
-

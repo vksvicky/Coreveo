@@ -10,5 +10,3 @@ enum SensorAggregator {
 		return sum / Double(present.count)
 	}
 }
-
-

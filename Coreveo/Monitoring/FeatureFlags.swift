@@ -9,5 +9,3 @@ public final class SensorFeatureFlags {
 	public func setEnabled(_ enabled: Bool, for group: String) { flags[group.lowercased()] = enabled }
 	public func isEnabled(group: String) -> Bool { flags[group.lowercased()] ?? defaultEnabled }
 }
-
-

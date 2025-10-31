@@ -11,8 +11,10 @@ enum CatalogBackedProviderFactory {
 		return CatalogBackedTemperatureSensorsProvider(device: device, catalog: catalog)
 	}
 
-	private static func parseOSVersion(_ s: String) -> String {
-		for c in s.split(separator: " ") { if c.contains(".") { return String(c) } }
+	private static func parseOSVersion(_ osString: String) -> String {
+		for component in osString.split(separator: " ") where component.contains(".") {
+			return String(component)
+		}
 		return "14.0"
 	}
 
@@ -28,5 +30,3 @@ enum CatalogBackedProviderFactory {
 		return nil
 	}
 }
-
-

@@ -1,6 +1,7 @@
 import Foundation
 
 /// Structured telemetry events for sensor mapping issues and anomalies.
+/// Used to track missing channels, renamed sensors, and value anomalies for catalog maintenance.
 public enum TelemetryEvent: Equatable {
 	case missingChannel(model: String, os: String, group: String, channel: String)
 	case renamedChannel(model: String, os: String, from: String, to: String)
@@ -8,6 +9,7 @@ public enum TelemetryEvent: Equatable {
 }
 
 /// Minimal logger protocol to allow swapping implementations and testing.
+/// Provides a simple interface for recording telemetry events.
 public protocol TelemetryLogging {
 	func record(_ event: TelemetryEvent)
 }
@@ -24,5 +26,3 @@ public final class InMemoryTelemetryLogger: TelemetryLogging {
 		events.append(event)
 	}
 }
-
-

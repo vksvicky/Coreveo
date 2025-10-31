@@ -16,7 +16,7 @@ final class SensorCatalogTests: XCTestCase {
 		          "friendlyName": "Efficiency Core 1",
 		          "unit": "celsius",
 		          "groups": ["CPU", "Thermal"],
-		          "source": { "type": "smc", "key": "TC0E" },
+		          "source": { "smc": "TC0E" },
 		          "transform": { "scale": 1.0 }
 		        },
 		        {
@@ -24,7 +24,7 @@ final class SensorCatalogTests: XCTestCase {
 		          "friendlyName": "GPU Cluster",
 		          "unit": "celsius",
 		          "groups": ["GPU", "Thermal"],
-		          "source": { "type": "ioReport", "group": "Thermal", "channel": "GPU Die" }
+		          "source": { "ioReport": { "group": "Thermal", "channel": "GPU Die" } }
 		        }
 		      ]
 		    }
@@ -46,8 +46,8 @@ final class SensorCatalogTests: XCTestCase {
 		    {
 		      "modelIdentifier": "Mac14,5",
 		      "sensors": [
-		        {"id": "x", "friendlyName": "A", "unit": "celsius", "groups": ["t"], "source": {"type": "smc", "key": "TC0E"}},
-		        {"id": "x", "friendlyName": "B", "unit": "celsius", "groups": ["t"], "source": {"type": "smc", "key": "TC1E"}}
+		        {"id": "x", "friendlyName": "A", "unit": "celsius", "groups": ["t"], "source": {"smc": "TC0E"}},
+		        {"id": "x", "friendlyName": "B", "unit": "celsius", "groups": ["t"], "source": {"smc": "TC1E"}}
 		      ]
 		    }
 		  ]
@@ -69,7 +69,7 @@ final class SensorCatalogTests: XCTestCase {
 		    {
 		      "modelIdentifier": "Mac14,5",
 		      "sensors": [
-		        {"id": "x", "friendlyName": "A", "unit": "celsius", "groups": ["t"], "source": {"type": "smc", "key": "TC0E"}, "transform": {"clampMin": 100, "clampMax": 10}}
+		        {"id": "x", "friendlyName": "A", "unit": "celsius", "groups": ["t"], "source": {"smc": "TC0E"}, "transform": {"clampMin": 100, "clampMax": 10}}
 		      ]
 		    }
 		  ]
