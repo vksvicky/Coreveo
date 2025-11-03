@@ -40,7 +40,7 @@
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string>Coreveo needs access to monitor system performance and disk usage.</string>
 	<key>NSFullDiskAccessUsageDescription</key>
-	<string>Coreveo needs Full Disk Access to monitor disk usage, S.M.A.R.T. data, and system performance.</string>
+	<string>Coreveo needs Full Disk Access to monitor disk health (S.M.A.R.T.) data including temperature, wear level, and overall disk health status.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2025 CycleRunCode Club. All rights reserved.</string>
 	<key>NSLocationUsageDescription</key>

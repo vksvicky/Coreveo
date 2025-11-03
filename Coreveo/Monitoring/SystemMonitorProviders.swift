@@ -194,13 +194,7 @@ struct LocalIOReportProvider: TemperatureSensorsProviding {
         }
         task.waitUntilExit()
         guard task.terminationStatus == 0 else {
-            let errorData = stderr.fileHandleForReading.readDataToEndOfFile()
-            let errorMsg = errorData.isEmpty ? "unknown" : (String(data: errorData, encoding: .utf8) ?? "non-UTF8")
-            // Only log errors once per minute to avoid spam
-            if Self.lastErrorLog == nil || (Self.lastErrorLog.map { now.timeIntervalSince($0) >= 60.0 } ?? true) {
-                NSLog("[Coreveo] IOReport: powermetrics exited with status \(task.terminationStatus) - \(errorMsg.prefix(200))")
-                Self.lastErrorLog = now
-            }
+            // powermetrics requires sudo, will always fail - silently return nil
             return nil
         }
         let data = stdout.fileHandleForReading.readDataToEndOfFile()

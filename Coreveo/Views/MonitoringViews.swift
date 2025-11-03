@@ -249,24 +249,207 @@ struct MemoryView: View {
 
 struct DiskView: View {
     @ObservedObject var monitor = SystemMonitor.shared
+    @StateObject private var smartMonitor = SmartDiskMonitor()
+    @State private var isRefreshing = false
+    @State private var fdaCheckTimer: Timer?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Disk Monitoring")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            Text("Disk Usage: \(Int(monitor.diskUsage))%")
-                .font(.title2)
-            
-            ProgressView(value: monitor.diskUsage / 100.0)
-                .progressViewStyle(LinearProgressViewStyle(tint: .orange))
-                .scaleEffect(y: 3)
-            
-            Spacer()
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                // Basic Disk Usage Section
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Disk Monitoring")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    
+                    Text("Disk Usage: \(Int(monitor.diskUsage))%")
+                        .font(.title2)
+                    
+                    ProgressView(value: monitor.diskUsage / 100.0)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .orange))
+                        .scaleEffect(y: 3)
+                }
+                
+                Divider()
+                    .padding(.vertical, 8)
+                
+                // S.M.A.R.T. Health Monitoring Section
+                VStack(alignment: .leading, spacing: 16) {
+                    HStack {
+                        Text("Disk Health (S.M.A.R.T.)")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                        
+                        Spacer()
+                        
+                        if smartMonitor.canReadSmartData() {
+                            Button(action: refreshSmartData) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.clockwise")
+                                    Text("Refresh")
+                                }
+                            }
+                            .buttonStyle(.bordered)
+                            .disabled(isRefreshing)
+                        }
+                    }
+                    
+                    Group {
+                        if smartMonitor.canReadSmartData() {
+                            // FDA granted - show disk health data
+                            Text(verbatim: "DEBUG: FDA granted, disks.count=\(smartMonitor.disks.count), isRefreshing=\(isRefreshing)")
+                                .font(.caption)
+                                .foregroundColor(.green)
+                            
+                            if smartMonitor.disks.isEmpty && !isRefreshing {
+                                emptySmartDataView
+                            } else if isRefreshing {
+                                HStack {
+                                    Spacer()
+                                    ProgressView("Checking disk health...")
+                                    Spacer()
+                                }
+                                .padding()
+                            } else {
+                                smartDiskList
+                            }
+                        } else {
+                            // FDA not granted - show permission required message
+                            Text(verbatim: "DEBUG: FDA NOT granted")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                            fdaRequiredView
+                        }
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding()
         }
-        .padding()
         .navigationTitle("Disk")
+        .onAppear {
+            checkAndRefresh()
+            startFDACheckTimer()
+        }
+        .onDisappear {
+            stopFDACheckTimer()
+        }
+    }
+    
+    private func checkAndRefresh() {
+        let canRead = smartMonitor.canReadSmartData()
+        if canRead && smartMonitor.disks.isEmpty {
+            smartMonitor.refresh()
+        }
+    }
+    
+    private func startFDACheckTimer() {
+        // Check FDA status every 2 seconds while the view is visible
+        // This auto-refreshes when user grants permission in System Settings
+        fdaCheckTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { _ in
+            checkAndRefresh()
+        }
+    }
+    
+    private func stopFDACheckTimer() {
+        fdaCheckTimer?.invalidate()
+        fdaCheckTimer = nil
+    }
+    
+    // MARK: - S.M.A.R.T. Components
+    
+    @ViewBuilder
+    private var smartDiskList: some View {
+        VStack(spacing: 12) {
+            ForEach(smartMonitor.disks) { disk in
+                DiskHealthCard(disk: disk, smartData: smartMonitor.smartData[disk.identifier])
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var emptySmartDataView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "externaldrive.trianglebadge.exclamationmark")
+                .font(.system(size: 48))
+                .foregroundColor(.orange)
+            
+            Text("No Disks Found")
+                .font(.headline)
+            
+            Text("No S.M.A.R.T.-capable disks detected")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+            
+            Button("Scan for Disks") {
+                refreshSmartData()
+            }
+            .buttonStyle(.bordered)
+            .padding(.top, 8)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(32)
+    }
+    
+    @ViewBuilder
+    private var fdaRequiredView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "externaldrive.badge.exclamationmark")
+                .font(.system(size: 60))
+                .foregroundColor(.orange)
+            
+            VStack(spacing: 8) {
+                Text("Full Disk Access Required")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                
+                Text("Full Disk Access permission is required to read disk health (S.M.A.R.T.) data. Please grant this permission in System Settings to enable disk health monitoring.")
+                    .font(.body)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            HStack(spacing: 12) {
+                Button(action: {
+                    PermissionManager.shared.openFullDiskAccessSettings()
+                }) {
+                    HStack {
+                        Image(systemName: "gear")
+                        Text("Open System Settings")
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                
+                Button(action: {
+                    if smartMonitor.canReadSmartData() {
+                        smartMonitor.refresh()
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "arrow.clockwise")
+                        Text("Check Permission")
+                    }
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+        .padding(40)
+        .frame(maxWidth: 500)
+    }
+    
+    private func refreshSmartData() {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        
+        smartMonitor.refresh()
+        
+        Task {
+            try? await Task.sleep(nanoseconds: 500_000_000) // Small delay for UX
+            isRefreshing = false
+        }
     }
 }
 

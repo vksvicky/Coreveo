@@ -32,7 +32,6 @@ enum SystemMonitorHelpers {
             if fm.fileExists(atPath: url.path),
                let data = try? Data(contentsOf: url),
                let catalog = try? SensorCatalogLoader.load(from: data) {
-                NSLog("[Coreveo] Loaded sensor catalog from Application Support override: \(url.path)")
                 return catalog
             }
         }
@@ -41,11 +40,9 @@ enum SystemMonitorHelpers {
         if let bundleUrl = Bundle.main.url(forResource: "sensor_catalog", withExtension: "json"),
            let data = try? Data(contentsOf: bundleUrl),
            let catalog = try? SensorCatalogLoader.load(from: data) {
-            NSLog("[Coreveo] Loaded sensor catalog from bundle: \(bundleUrl.path)")
             return catalog
         }
         
-        NSLog("[Coreveo] No sensor catalog found - using raw sensors only")
         return nil
     }
 

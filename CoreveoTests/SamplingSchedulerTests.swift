@@ -8,15 +8,15 @@ final class SamplingSchedulerTests: XCTestCase {
 		let lock = NSLock()
 		var inFlight = 0
 		var ticks = 0
-		let scheduler = SamplingScheduler(interval: 0.05, jitterFraction: 0.0, queue: .global(qos: .userInitiated)) {
-			lock.lock(); inFlight += 1; lock.unlock()
-			usleep(40_000) // 40ms work ~ close to interval; should coalesce some
-			lock.lock()
-			ticks += 1
-			inFlight -= 1
-			lock.unlock()
-			exp.fulfill()
-		}
+        let scheduler = SamplingScheduler(interval: 0.05, jitterFraction: 0.0, handler:  {
+            lock.lock(); inFlight += 1; lock.unlock()
+            usleep(40_000) // 40ms work ~ close to interval; should coalesce some
+            lock.lock()
+            ticks += 1
+            inFlight -= 1
+            lock.unlock()
+            exp.fulfill()
+        }, queue: .global(qos: .userInitiated))
 		scheduler.start()
 		wait(for: [exp], timeout: 1.0)
 		scheduler.stop()

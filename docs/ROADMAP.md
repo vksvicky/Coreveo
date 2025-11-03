@@ -38,8 +38,16 @@ _(Priorities: P0 = critical, P1 = high, P2 = medium, P3 = low)_
 - [ ] **Disk Monitoring** (P2)
   - [ ] Storage capacity and usage statistics
   - [ ] Real-time disk I/O performance (read/write speeds)
-  - [ ] S.M.A.R.T. status for disk health
-  - [ ] Temperature monitoring for SSDs/HDDs
+  - [x] Basic S.M.A.R.T. disk health monitoring (✅ Implemented)
+    - [x] Disk discovery and enumeration
+    - [x] Temperature monitoring for SSDs/HDDs
+    - [x] Health status display (Healthy/Warning/Critical)
+    - [x] Power-on hours tracking
+    - [x] Wear level monitoring (SSDs)
+    - [x] Full Disk Access permission integration
+    - [x] User-friendly FDA requirement messaging
+    - [x] Dedicated Disk Health settings view
+  - [ ] **Advanced S.M.A.R.T. Monitoring** (see detailed section below)
 
 - [ ] **Network Monitoring** (P3)
   - [ ] Real-time upload/download speeds
@@ -90,6 +98,140 @@ _(Priorities: P0 = critical, P1 = high, P2 = medium, P3 = low)_
   - [ ] Golden IOReport recordings per model/OS
   - [ ] Regression tests for presence/units
   - [ ] Fixtures for offline tests
+
+#### Comprehensive S.M.A.R.T. Disk Health Monitoring
+*Detailed disk health tracking and predictive failure analysis*
+
+**Phase 1A: Core Data Collection** (P2) - [Basic implementation ✅]
+- [x] Raw SMART attribute reading - Read all available SMART attributes from drives
+- [x] SMART status verification - Check overall pass/fail status  
+- [x] Temperature monitoring - Track current drive temperature
+- [x] Power-on hours tracking - Monitor total operational time
+- [ ] Power cycle count - Track number of power cycles
+- [ ] Reallocated sector monitoring - Track remapped bad sectors
+- [ ] Pending sector detection - Identify sectors awaiting reallocation
+- [ ] Uncorrectable error tracking - Monitor unrecoverable read/write errors
+- [ ] CRC error count - Track data transfer errors
+- [ ] Seek error rate monitoring - Track head positioning errors (HDD)
+- [ ] Spin retry count - Monitor spin-up failures (HDD)
+- [ ] Start/stop cycle count - Track spindle start/stop cycles (HDD)
+- [ ] Load/unload cycle count - Monitor head parking operations (HDD)
+- [x] SSD wear leveling - Track flash cell usage distribution
+- [ ] Total bytes written/read - Monitor SSD usage metrics
+- [x] Available spare blocks - Track SSD reserve capacity
+- [ ] Media wearout indicator - Monitor SSD lifespan percentage
+- [ ] Program fail count - Track SSD write failures
+- [ ] Erase fail count - Track SSD erase operation failures
+- [ ] TRIM command support detection - Verify SSD optimization capability
+
+**Phase 1B: Display & Visualization** (P2) - [Basic implementation ✅]
+- [x] Real-time attribute display - Show current SMART values
+- [x] Health score calculation - Overall drive health percentage
+- [x] Traffic light indicators - Red/yellow/green status
+- [x] Dashboard view - Multi-drive overview
+- [ ] Detailed attribute view - Show all raw values
+- [ ] Color-coded warnings - Enhanced visual severity indicators
+- [ ] Graphical trend charts - Visualize attribute history
+- [ ] Temperature graphs - Plot temperature over time
+- [ ] Comparison view - Compare multiple drives
+- [ ] Predicted lifespan display - Estimated remaining life
+
+**Phase 2A: Logging & History** (P2)
+- [ ] Historical data logging - Store SMART values over time
+- [ ] Attribute trend analysis - Track how values change
+- [ ] Error log parsing - Read and interpret drive error logs
+- [ ] Self-test log monitoring - Track results of drive self-tests
+- [ ] Event timestamp recording - Log when changes occur
+- [ ] Database storage - Store long-term SMART history (SQLite)
+- [ ] CSV/JSON export - Export data for external analysis
+- [ ] Statistical summaries - Generate health reports
+- [ ] Comparative baseline tracking - Compare against initial values
+
+**Phase 2B: System Integration** (P1)
+- [x] Multi-drive monitoring - Track all connected drives simultaneously
+- [x] Internal drive monitoring - Monitor built-in storage
+- [ ] External drive monitoring - Track USB/Thunderbolt drives
+- [ ] RAID array monitoring - Individual disk monitoring in arrays
+- [x] NVMe-specific monitoring - NVMe health attributes
+- [ ] HDD-specific monitoring - Mechanical drive attributes (seek error, spin retry)
+- [x] SSD-specific monitoring - Flash-specific metrics
+- [ ] Launch at startup - Automatic monitoring on boot
+- [ ] Background daemon operation - Run without GUI
+- [ ] Low resource usage - Minimal system impact
+- [x] Permission handling - Proper FDA access management
+
+**Phase 3A: Testing Features** (P3)
+- [ ] Short self-test execution - Run quick drive diagnostics
+- [ ] Extended self-test execution - Run comprehensive diagnostics
+- [ ] Conveyance self-test - Test for shipping damage
+- [ ] Selective self-test - Test specific drive regions
+- [ ] Background scan monitoring - Track automatic drive scans
+- [ ] Test scheduling - Automate regular self-tests
+- [ ] Test result verification - Parse and report test outcomes
+- [ ] Offline data collection - Enable background SMART updates
+
+**Phase 3B: Alert & Notification** (P2)
+- [ ] Threshold violation alerts - Warn when attributes exceed limits
+- [ ] Temperature alerts - Notify on overheating
+- [ ] Rapid degradation detection - Alert on quick attribute changes
+- [ ] Failure prediction warnings - Warn of imminent drive failure
+- [ ] macOS notification center integration - System notifications
+- [ ] Sound/audio alerts - Audible warnings
+- [ ] Menu bar status indicators - Visual health indicators
+- [ ] Badge notifications - App icon badges for warnings
+- [ ] Scheduled health reports - Regular status summaries
+- [ ] Email alerts - Send notifications via email (optional)
+- [ ] SMS/push notifications - Mobile alerts (optional)
+- [ ] Webhook integration - Third-party service notifications
+
+**Phase 3C: Advanced Analysis** (P3)
+- [ ] Predictive failure analysis - ML-based failure prediction
+- [ ] Anomaly detection - Identify unusual patterns
+- [ ] Correlation analysis - Link multiple attribute changes
+- [ ] Benchmark comparison - Compare against drive model norms
+- [ ] Age-adjusted thresholds - Account for expected wear
+- [ ] Environmental factor tracking - Correlate with temperature/humidity
+- [ ] Performance impact analysis - Link health to performance
+- [ ] Warranty status tracking - Link to drive age/warranty
+
+**Phase 4A: Automation** (P3)
+- [ ] Scheduled monitoring - Regular automatic checks
+- [ ] launchd integration - macOS service scheduling
+- [ ] Script execution on events - Trigger actions on alerts
+- [ ] Automatic backup triggers - Start backups on warnings
+- [ ] Safe mode on critical failure - Protect data on imminent failure
+- [ ] Log rotation - Manage log file sizes
+- [ ] Auto-update SMART database - Keep drive definitions current
+
+**Phase 4B: Reporting** (P3)
+- [ ] PDF report generation - Formatted health reports
+- [ ] HTML report export - Web-viewable reports
+- [ ] Plain text summaries - Simple status reports
+- [ ] Compliance reporting - Enterprise audit trails
+- [ ] Executive summaries - High-level overviews
+
+**Phase 4C: Configuration & Customization** (P3)
+- [ ] Custom threshold setting - Adjust warning levels
+- [ ] Monitoring interval configuration - Set check frequency
+- [ ] Attribute selection - Choose which attributes to track
+- [ ] Alert preference customization - Configure notification types
+- [ ] Display preference settings - Customize interface
+- [ ] Profile management - Different settings per drive type
+- [ ] Import/export configurations - Share settings
+
+**Phase 5A: Data Protection & Security** (P1)
+- [x] Read-only monitoring - Never write to drives
+- [x] Safe mode operation - Prevent accidental damage
+- [ ] Encrypted log storage - Secure sensitive data
+- [ ] Access logging - Track who viewed data
+- [ ] Privacy mode - Anonymize serial numbers in reports
+
+**Implementation Notes:**
+- Basic S.M.A.R.T. monitoring foundation implemented (✅)
+- Requires `smartctl` (Homebrew: `brew install smartmontools`)
+- Full Disk Access permission required for all operations
+- Test suite implemented using TDD approach
+- See `docs/SMART_MONITORING_IMPLEMENTATION.md` for technical details
 
 - [ ] **Process Management** (P3)
   - [ ] Running processes with resource usage
@@ -170,10 +312,12 @@ _(P0-P2 depending on permutation; see priorities below)_
   - [ ] Privacy dashboard for app data access
 
 - [ ] **Hardware Health Predictions**
-  - [ ] Component failure prediction using S.M.A.R.T. data
+  - [x] Basic S.M.A.R.T. disk health monitoring (✅ Foundation complete)
+  - [ ] Component failure prediction using S.M.A.R.T. data (ML-based)
   - [ ] Upgrade recommendations based on usage patterns
   - [ ] Performance optimization suggestions
   - [ ] Maintenance scheduling reminders
+  - *Note: See "Comprehensive S.M.A.R.T. Disk Health Monitoring" in Phase 1 for detailed roadmap*
 
 - [ ] **Customizable Dashboard Engine**
   - [ ] Drag-and-drop widget interface
@@ -311,7 +455,7 @@ _(mixed priorities, core items marked P0/P1)_
 - System Overview (macOS version, hardware specs, uptime)
 - CPU Monitoring (per-core usage, temperature, processes)
 - Memory Monitoring (RAM usage, pressure, swap, top processes)
-- Storage Monitoring (capacity, I/O, S.M.A.R.T., temperature)
+- Storage Monitoring (capacity, I/O, comprehensive S.M.A.R.T. health tracking, temperature, wear leveling)
 - Network Monitoring (speed, IP addresses, interfaces)
 - Battery Monitoring (charge, health, cycles, power usage)
 - Temperature & Fan Control (monitoring and manual control)
@@ -373,5 +517,9 @@ _(mixed priorities, core items marked P0/P1)_
 
 ---
 
-*Last Updated: 2025-10-30 (Sensor infra status updated)*
-*Version: 1.0*
+*Last Updated: 2025-11-02*
+- Added comprehensive S.M.A.R.T. disk health monitoring roadmap (120+ features)
+- Marked basic S.M.A.R.T. implementation as complete (Phase 1A/1B foundation)
+- Organized S.M.A.R.T. features into 9 implementation phases with priorities
+
+*Version: 1.1*

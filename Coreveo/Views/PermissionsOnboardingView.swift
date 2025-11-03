@@ -118,18 +118,23 @@ struct PermissionsOnboardingView: View {
         ),
         PermissionItem(
             title: "Full Disk Access",
-            description: "Required for disk monitoring and S.M.A.R.T. data",
+            description: "Required for disk health (S.M.A.R.T.) monitoring - tracks disk temperature, wear level, and health",
             icon: "externaldrive.fill",
             color: .orange,
             instructions: [
-                "Open System Settings",
-                "Go to Privacy & Security",
-                "Select Full Disk Access",
-                "Click the + button",
-                "Add Coreveo to the list"
+                "Enables disk health (S.M.A.R.T.) monitoring to track:",
+                "• Disk temperature and thermal status",
+                "• SSD wear level and remaining lifespan",  
+                "• Power-on hours and usage statistics",
+                "• Overall disk health status",
+                "Open System Settings → Privacy & Security → Full Disk Access",
+                "Add Coreveo to enable disk health monitoring"
             ]
-        ),
-        PermissionItem(
+        )
+        // Network permission is optional and not required for basic functionality
+        // Commented out to simplify onboarding
+        /*
+        ,PermissionItem(
             title: "Network Monitoring",
             description: "Optional for advanced network monitoring features",
             icon: "network",
@@ -141,6 +146,7 @@ struct PermissionsOnboardingView: View {
                 "Basic CPU, Memory, and Disk monitoring works without this"
             ]
         )
+        */
     ]
     
     var body: some View {
@@ -489,125 +495,13 @@ struct PermissionsOnboardingView: View {
     }
     
     private func checkAccessibilityPermission() -> Bool {
-        // For sandboxed apps, AXIsProcessTrustedWithOptions often returns false even when granted
-        // Try multiple methods to detect Accessibility permission
-        
-        // Method 1: Standard check
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
-        let isTrusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        NSLog("[Onboarding] Accessibility standard check: \(isTrusted)")
-        
-        if isTrusted {
-            return true
-        }
-        
-        // Method 2: Try to create an accessibility element (works in sandboxed apps when granted)
-        let appElement = AXUIElementCreateApplication(NSRunningApplication.current.processIdentifier)
-        var value: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(appElement, kAXRoleAttribute as CFString, &value)
-        if result == .success {
-            NSLog("[Onboarding] Accessibility element creation: SUCCESS")
-            return true
-        } else {
-            NSLog("[Onboarding] Accessibility element creation: FAILED (\(result.rawValue))")
-        }
-        
-        // Method 2b: System-wide element capability check
-        let systemWideElement = AXUIElementCreateSystemWide()
-        var focusedApp: CFTypeRef?
-        let systemWideResult = AXUIElementCopyAttributeValue(systemWideElement,
-                                                             kAXFocusedApplicationAttribute as CFString,
-                                                             &focusedApp)
-        if systemWideResult == .success {
-            NSLog("[Onboarding] Accessibility system-wide focused app: SUCCESS")
-            return true
-        } else {
-            NSLog("[Onboarding] Accessibility system-wide check failed (code \(systemWideResult.rawValue))")
-        }
-        
-        // Method 3: Check if we can access window information
-        if let windowList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) {
-            let windows = windowList as? [[String: Any]] ?? []
-            NSLog("[Onboarding] Accessibility window access: \(windows.count) windows visible")
-            // If we can see window info, we likely have accessibility
-            if windows.count > 0 {
-                return true
-            }
-        }
-        
-        NSLog("[Onboarding] Accessibility check result: false (all methods)")
-        return false
+        // Use PermissionManager for consistent accessibility detection
+        return PermissionManager.shared.checkAccessibilityPermission()
     }
     
     private func checkFullDiskAccessPermission() -> Bool {
-        NSLog("[Onboarding] Checking Full Disk Access...")
-        
-        let fileManager = FileManager.default
-        
-        // Get the REAL user home directory using getpwuid (not the sandboxed one)
-        guard let realHome = getRealHomeDirectory() else {
-            NSLog("[Onboarding] ⚠️ Could not determine real home directory")
-            return false
-        }
-        
-        NSLog("[Onboarding] Real home directory: \(realHome)")
-        NSLog("[Onboarding] Sandbox home directory: \(NSHomeDirectory())")
-        
-        // Test multiple protected paths - only need one to succeed
-        // Try more reliable paths that are more likely to exist
-        let protectedPaths = [
-            "\(realHome)/Library/Mail/V2/MailData",       // Mail data - requires FDA (more specific)
-            "\(realHome)/Library/Safari",                  // Safari data - requires FDA
-            "\(realHome)/Library/Calendars",               // Calendar data - requires FDA
-            "\(realHome)/Library/Application Support/com.apple.sharedfilelist", // Shared file lists - requires FDA
-            "\(realHome)/Library/Keychains",               // Keychains - requires FDA
-            "\(realHome)/Library/Application Support/com.apple.TCC", // TCC database - requires FDA
-            "/private/var/log/system.log"                   // System log - requires FDA (absolute path)
-        ]
-        
-        for path in protectedPaths {
-            NSLog("[Onboarding] Testing FDA path: \(path)")
-            
-            // Check if path exists first
-            guard fileManager.fileExists(atPath: path) else {
-                NSLog("[Onboarding]   Path doesn't exist (skipping)")
-                continue
-            }
-            
-            do {
-                // Try to read directory contents or file attributes
-                var isDirectory: ObjCBool = false
-                if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
-                    if isDirectory.boolValue {
-                        let contents = try fileManager.contentsOfDirectory(atPath: path)
-                        NSLog("[Onboarding] ✅ Full Disk Access GRANTED - accessed directory \(path) (\(contents.count) items)")
-                        return true
-                    } else {
-                        // It's a file, try to read attributes
-                        _ = try fileManager.attributesOfItem(atPath: path)
-                        NSLog("[Onboarding] ✅ Full Disk Access GRANTED - accessed file \(path)")
-                        return true
-                    }
-                }
-            } catch let error as NSError {
-                NSLog("[Onboarding]   ❌ Access denied: \(error.domain) code:\(error.code) - \(error.localizedDescription)")
-                
-                // Check for specific permission denied errors
-                // NSCocoaErrorDomain 257 = NSFileReadNoPermissionError
-                // NSCocoaErrorDomain 513 = NSFileWriteNoPermissionError  
-                // NSPOSIXErrorDomain 13 = Permission denied
-                if (error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513)) ||
-                   (error.domain == NSPOSIXErrorDomain && error.code == 13) {
-                    NSLog("[Onboarding]   This is a permission denied error (expected without FDA)")
-                } else {
-                    // Other errors might indicate permission denied too
-                    NSLog("[Onboarding]   Unexpected error - might indicate permission denied")
-                }
-            }
-        }
-        
-        NSLog("[Onboarding] ❌ Full Disk Access NOT GRANTED - could not access any protected paths")
-        return false
+        // Use PermissionManager for consistent, accurate FDA detection
+        return PermissionManager.shared.checkFullDiskAccessPermission()
     }
     
     private func checkNetworkPermission() -> Bool {

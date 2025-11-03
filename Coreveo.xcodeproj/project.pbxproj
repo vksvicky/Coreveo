@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02D07D0D05EB1A3CD334A50C /* DiskHealthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09A8C4AC0D26BDE044B7BBA1 /* DiskHealthView.swift */; };
+		1E65B33B700FC6F2CC5FB854 /* PermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A216822523A7F460B6CC596A /* PermissionManager.swift */; };
 		39DED65E8976D174C114842B /* SystemInfoReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */; };
 		A1000001294A1234567890AB /* CoreveoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890AC /* CoreveoApp.swift */; };
 		A1000001294A1234567890AD /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890AE /* ContentView.swift */; };
@@ -21,6 +23,7 @@
 		A1000001294A1234567890E2 /* PreviewContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E3 /* PreviewContent.swift */; };
 		A1000001294A1234567890E5 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E6 /* ThemeManager.swift */; };
 		A1000001294A1234567890E7 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000001294A1234567890E8 /* SettingsView.swift */; };
+		C6BC58749D4AF9647A76C76B /* FDADiagnosticTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12906000E8C434442D9F929 /* FDADiagnosticTests.swift */; };
 		E24BA29C2EB3958000DC0AE4 /* HELP.md in Resources */ = {isa = PBXBuildFile; fileRef = E24BA2972EB3957000DC0AE4 /* HELP.md */; };
 		E24BA29D2EB3B9F400DC0AE4 /* HELP.md in Resources */ = {isa = PBXBuildFile; fileRef = E24BA2972EB3957000DC0AE4 /* HELP.md */; };
 		E251C21D2EB4B26C004E9FF3 /* SensorCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A000012F00010000000001 /* SensorCatalog.swift */; };
@@ -34,7 +37,6 @@
 		E251C2252EB4B2A8004E9FF3 /* RemoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A000092F00010000000009 /* RemoteConfig.swift */; };
 		E251C2262EB4B2AE004E9FF3 /* SensorQuarantine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000A2F0001000000000A /* SensorQuarantine.swift */; };
 		E251C2272EB4B2B3004E9FF3 /* FeatureFlags.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000B2F0001000000000B /* FeatureFlags.swift */; };
-		E251C2282EB4B2B8004E9FF3 /* SmartNvmeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000C2F0001000000000C /* SmartNvmeReader.swift */; };
 		E251C2292EB4B2BE004E9FF3 /* HelperXPC.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000D2F0001000000000D /* HelperXPC.swift */; };
 		E251C22A2EB4B2C3004E9FF3 /* CoverageMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000E2F0001000000000E /* CoverageMetrics.swift */; };
 		E251C22B2EB4B2D1004E9FF4 /* SystemMonitorProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A0000F2F0001000000000F /* SystemMonitorProviders.swift */; };
@@ -51,12 +53,12 @@
 		E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2606C052EB26D8000244947 /* CPULayoutTests.swift */; };
 		E2SMC0012EB5000000244947 /* SMCProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2SMC0002EB5000000244947 /* SMCProviders.swift */; };
 		E2TEMPBF12EB26EAA00244947 /* TemperatureProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2TEMPBF02EB26EAA00244947 /* TemperatureProvider.swift */; };
-        E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000002EB4000000000001 /* MarkdownViewer.swift */; };
+		E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000002EB4000000000001 /* MarkdownViewer.swift */; };
 		E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000062EB4A10000000003 /* MarkdownViewerTests.swift */; };
 		E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000072EB4A10000000004 /* MarkdownBDDTests.swift */; };
-        E30000102EB4B10000000001 /* MDParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000112EB4B10000000002 /* MDParser.swift */; };
-        E30000122EB4B10000000003 /* MDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000132EB4B10000000004 /* MDView.swift */; };
-        E30000162EB4B30000000007 /* MDParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000152EB4B30000000006 /* MDParserTests.swift */; };
+		E30000102EB4B10000000001 /* MDParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000112EB4B10000000002 /* MDParser.swift */; };
+		E30000122EB4B10000000003 /* MDView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000132EB4B10000000004 /* MDView.swift */; };
+		E30000162EB4B30000000007 /* MDParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30000152EB4B30000000006 /* MDParserTests.swift */; };
 		E5B000012F00010100000001 /* SensorCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51000012F00010000000001 /* SensorCatalogTests.swift */; };
 		E5B000022F00010100000002 /* SensorNormalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51000022F00010000000002 /* SensorNormalizationTests.swift */; };
 		E5B000032F00010100000003 /* DeviceRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51000032F00010000000003 /* DeviceRoutingTests.swift */; };
@@ -73,9 +75,9 @@
 		E5B0000E2F0001010000000E /* HelperXPCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E510000E2F0001000000000E /* HelperXPCTests.swift */; };
 		E5B0000F2F0001010000000F /* CoverageMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E510000F2F0001000000000F /* CoverageMetricsTests.swift */; };
 		E5CAT0012F00010000000001 /* sensor_catalog.json in Resources */ = {isa = PBXBuildFile; fileRef = E5CAT0002F00010000000001 /* sensor_catalog.json */; };
-		E5A0000F2F0001000000000F /* TemperatureProviderCatalogBacked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureProviderCatalogBacked.swift; sourceTree = "<group>"; };
-        E5A000102F00010000000010 /* ProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderFactory.swift; sourceTree = "<group>"; };
-        E5A000112F00010000000011 /* PowermetricsSensorsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowermetricsSensorsProvider.swift; sourceTree = "<group>"; };
+		E77B411E54621E8E40E69988 /* SmartDiskMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39AEA3DED7A649785116789 /* SmartDiskMonitor.swift */; };
+		EEABF902F2BCE050A0E90A28 /* SmartMonitoringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB85D43BBB3C4FEBB77745F /* SmartMonitoringTests.swift */; };
+		FEB4F41C103DC0904E586FBB /* PermissionDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD846858DC373D5E93630C14 /* PermissionDetectionTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,7 +91,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		003C69C2921E80FAE10FFB14 /* FDA_DETECTION_STRATEGY.md */ = {isa = PBXFileReference; includeInIndex = 1; name = FDA_DETECTION_STRATEGY.md; path = docs/FDA_DETECTION_STRATEGY.md; sourceTree = "<group>"; };
+		09A8C4AC0D26BDE044B7BBA1 /* DiskHealthView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DiskHealthView.swift; sourceTree = "<group>"; };
+		0FB85D43BBB3C4FEBB77745F /* SmartMonitoringTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SmartMonitoringTests.swift; sourceTree = "<group>"; };
 		5C066F1B6181C73BA6B991AA /* SystemInfoReader.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SystemInfoReader.swift; sourceTree = "<group>"; };
+		64C4B2834DC5F87CB3659135 /* SMART_MONITORING_IMPLEMENTATION.md */ = {isa = PBXFileReference; includeInIndex = 1; path = SMART_MONITORING_IMPLEMENTATION.md; sourceTree = "<group>"; };
 		A1000001294A1234567890AC /* CoreveoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreveoApp.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890AE /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890B0 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
@@ -102,12 +108,14 @@
 		A1000001294A1234567890BE /* CoreveoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreveoTests.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890C0 /* Coreveo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Coreveo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001294A1234567890C1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E5CAT0002F00010000000001 /* sensor_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sensor_catalog.json; sourceTree = "<group>"; };
 		A1000001294A1234567890C2 /* CoreveoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreveoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000001294A1234567890C3 /* CoreveoTestsInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CoreveoTestsInfo.plist; sourceTree = "<group>"; };
 		A1000001294A1234567890E3 /* PreviewContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewContent.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890E6 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		A1000001294A1234567890E8 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; tabWidth = 4; };
+		A216822523A7F460B6CC596A /* PermissionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PermissionManager.swift; sourceTree = "<group>"; };
+		AD846858DC373D5E93630C14 /* PermissionDetectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PermissionDetectionTests.swift; sourceTree = "<group>"; };
+		D12906000E8C434442D9F929 /* FDADiagnosticTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FDADiagnosticTests.swift; sourceTree = "<group>"; };
 		E24BA2962EB3957000DC0AE4 /* DEVELOPMENT_PLAN.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DEVELOPMENT_PLAN.md; sourceTree = "<group>"; };
 		E24BA2972EB3957000DC0AE4 /* HELP.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = HELP.md; sourceTree = "<group>"; };
 		E24BA2982EB3957000DC0AE4 /* PERMISSION_TESTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PERMISSION_TESTING.md; sourceTree = "<group>"; };
@@ -126,11 +134,11 @@
 		E2SMC0002EB5000000244947 /* SMCProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMCProviders.swift; sourceTree = "<group>"; };
 		E2TEMPBF02EB26EAA00244947 /* TemperatureProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureProvider.swift; sourceTree = "<group>"; };
 		E30000002EB4000000000001 /* MarkdownViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewer.swift; sourceTree = "<group>"; };
-        E30000062EB4A10000000003 /* MarkdownViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewerTests.swift; sourceTree = "<group>"; };
-        E30000072EB4A10000000004 /* MarkdownBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownBDDTests.swift; sourceTree = "<group>"; };
+		E30000062EB4A10000000003 /* MarkdownViewerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownViewerTests.swift; sourceTree = "<group>"; };
+		E30000072EB4A10000000004 /* MarkdownBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownBDDTests.swift; sourceTree = "<group>"; };
 		E30000112EB4B10000000002 /* MDParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDParser.swift; sourceTree = "<group>"; };
 		E30000132EB4B10000000004 /* MDView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDView.swift; sourceTree = "<group>"; };
-        E30000152EB4B30000000006 /* MDParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDParserTests.swift; sourceTree = "<group>"; };
+		E30000152EB4B30000000006 /* MDParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDParserTests.swift; sourceTree = "<group>"; };
 		E51000012F00010000000001 /* SensorCatalogTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorCatalogTests.swift; sourceTree = "<group>"; };
 		E51000022F00010000000002 /* SensorNormalizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorNormalizationTests.swift; sourceTree = "<group>"; };
 		E51000032F00010000000003 /* DeviceRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceRoutingTests.swift; sourceTree = "<group>"; };
@@ -157,11 +165,13 @@
 		E5A000092F00010000000009 /* RemoteConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteConfig.swift; sourceTree = "<group>"; };
 		E5A0000A2F0001000000000A /* SensorQuarantine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensorQuarantine.swift; sourceTree = "<group>"; };
 		E5A0000B2F0001000000000B /* FeatureFlags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureFlags.swift; sourceTree = "<group>"; };
-		E5A0000C2F0001000000000C /* SmartNvmeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartNvmeReader.swift; sourceTree = "<group>"; };
 		E5A0000D2F0001000000000D /* HelperXPC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperXPC.swift; sourceTree = "<group>"; };
 		E5A0000E2F0001000000000E /* CoverageMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoverageMetrics.swift; sourceTree = "<group>"; };
 		E5A0000F2F0001000000000F /* SystemMonitorProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorProviders.swift; sourceTree = "<group>"; };
 		E5A000102F00010000000010 /* SystemMonitorHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemMonitorHelpers.swift; sourceTree = "<group>"; };
+		E5A000112F00010000000011 /* PowermetricsSensorsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowermetricsSensorsProvider.swift; sourceTree = "<group>"; };
+		E5CAT0002F00010000000001 /* sensor_catalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = sensor_catalog.json; sourceTree = "<group>"; };
+		F39AEA3DED7A649785116789 /* SmartDiskMonitor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SmartDiskMonitor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +212,7 @@
 				A1000001294A1234567890E6 /* ThemeManager.swift */,
 				E2606C032EB26D5200244947 /* Resources */,
 				A1000001294A1234567890E4 /* Preview Content */,
+				F6AD137CC7D9FF33DCE25A2D /* Utilities */,
 			);
 			path = Coreveo;
 			sourceTree = "<group>";
@@ -212,7 +223,7 @@
 				A1000001294A1234567890BE /* CoreveoTests.swift */,
 				A1000001294A1234567890C3 /* CoreveoTestsInfo.plist */,
 				E2606BFE2EB26D1D00244947 /* Monitoring */,
-                E30000052EB4A10000000000 /* Views */,
+				E30000052EB4A10000000000 /* Views */,
 				E51000012F00010000000001 /* SensorCatalogTests.swift */,
 				E51000022F00010000000002 /* SensorNormalizationTests.swift */,
 				E51000032F00010000000003 /* DeviceRoutingTests.swift */,
@@ -228,6 +239,9 @@
 				E510000D2F0001000000000D /* SmartNvmeReaderTests.swift */,
 				E510000E2F0001000000000E /* HelperXPCTests.swift */,
 				E510000F2F0001000000000F /* CoverageMetricsTests.swift */,
+				AD846858DC373D5E93630C14 /* PermissionDetectionTests.swift */,
+				D12906000E8C434442D9F929 /* FDADiagnosticTests.swift */,
+				0FB85D43BBB3C4FEBB77745F /* SmartMonitoringTests.swift */,
 			);
 			path = CoreveoTests;
 			sourceTree = "<group>";
@@ -257,6 +271,8 @@
 				E24BA2982EB3957000DC0AE4 /* PERMISSION_TESTING.md */,
 				E24BA2992EB3957000DC0AE4 /* PRODUCT_COMPARISON.md */,
 				E24BA29A2EB3957000DC0AE4 /* ROADMAP.md */,
+				003C69C2921E80FAE10FFB14 /* FDA_DETECTION_STRATEGY.md */,
+				64C4B2834DC5F87CB3659135 /* SMART_MONITORING_IMPLEMENTATION.md */,
 			);
 			path = docs;
 			sourceTree = "<group>";
@@ -281,17 +297,16 @@
 				E5A000092F00010000000009 /* RemoteConfig.swift */,
 				E5A0000A2F0001000000000A /* SensorQuarantine.swift */,
 				E5A0000B2F0001000000000B /* FeatureFlags.swift */,
-				E5A0000C2F0001000000000C /* SmartNvmeReader.swift */,
 				E5A0000D2F0001000000000D /* HelperXPC.swift */,
 				E5A0000E2F0001000000000E /* CoverageMetrics.swift */,
 				E5A0000F2F0001000000000F /* SystemMonitorProviders.swift */,
 				E5A000102F00010000000010 /* SystemMonitorHelpers.swift */,
-				E5A0000F2F0000010000000F /* TemperatureProviderCatalogBacked.swift */,
-				E5A000102F00010000000010 /* ProviderFactory.swift */,
-				E5A000112F00010000000011 /* PowermetricsSensorsProvider.swift */
+				E5A000102F00010000000010 /* SystemMonitorHelpers.swift */,
+				E5A000112F00010000000011 /* PowermetricsSensorsProvider.swift */,
+				F39AEA3DED7A649785116789 /* SmartDiskMonitor.swift */,
 			);
 			name = Monitoring;
-            path = Monitoring;
+			path = Monitoring;
 			sourceTree = "<group>";
 		};
 		E2606BFE2EB26D1D00244947 /* Monitoring */ = {
@@ -299,7 +314,7 @@
 			children = (
 				E2606BF32EB26B0A00244947 /* CPUMetricsTests.swift */,
 				E2606BF82EB26C2C00244947 /* SystemMonitorCPUTests.swift */,
-				E2606C052EB26D8000244947 /* CPULayoutTests.swift */
+				E2606C052EB26D8000244947 /* CPULayoutTests.swift */,
 			);
 			name = Monitoring;
 			sourceTree = "<group>";
@@ -314,10 +329,10 @@
 				A1000001294A1234567890B8 /* MonitoringViews.swift */,
 				A1000001294A1234567890BA /* PermissionsOnboardingView.swift */,
 				E2606BF02EB26A0000244947 /* HelpWindow.swift */,
-                E30000002EB4000000000001 /* MarkdownViewer.swift */,
-                E30000142EB4B10000000005 /* Markdown */,
+				E30000002EB4000000000001 /* MarkdownViewer.swift */,
+				E30000142EB4B10000000005 /* Markdown */,
 			);
-            path = Views;
+			path = Views;
 			sourceTree = "<group>";
 		};
 		E2606C022EB26D5100244947 /* Settings */ = {
@@ -328,8 +343,9 @@
 				E2606BDF2EB268D600244947 /* GeneralSettingsView.swift */,
 				E2606BE62EB268E400244947 /* PermissionsSettingsView.swift */,
 				E2606BD62EB2683100244947 /* SettingsComponents.swift */,
+				09A8C4AC0D26BDE044B7BBA1 /* DiskHealthView.swift */,
 			);
-            path = Settings;
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		E2606C032EB26D5200244947 /* Resources */ = {
@@ -339,7 +355,7 @@
 				E5CAT0002F00010000000001 /* sensor_catalog.json */,
 				A1000001294A1234567890C1 /* Info.plist */,
 			);
-            path = Resources;
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		E30000052EB4A10000000000 /* Views */ = {
@@ -359,6 +375,15 @@
 				E30000132EB4B10000000004 /* MDView.swift */,
 			);
 			path = Markdown;
+			sourceTree = "<group>";
+		};
+		F6AD137CC7D9FF33DCE25A2D /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				A216822523A7F460B6CC596A /* PermissionManager.swift */,
+			);
+			name = Utilities;
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -471,7 +496,6 @@
 				A1000001294A1234567890B1 /* MenuBarView.swift in Sources */,
 				A1000001294A1234567890B3 /* SystemMonitor.swift in Sources */,
 				A1000001294A1234567890B5 /* DashboardView.swift in Sources */,
-				E251C2282EB4B2B8004E9FF3 /* SmartNvmeReader.swift in Sources */,
 				A1000001294A1234567890B7 /* MonitoringViews.swift in Sources */,
 				A1000001294A1234567890B9 /* PermissionsOnboardingView.swift in Sources */,
 				E251C21D2EB4B26C004E9FF3 /* SensorCatalog.swift in Sources */,
@@ -484,11 +508,11 @@
 				E251C2202EB4B28E004E9FF3 /* SamplingScheduler.swift in Sources */,
 				E251C21E2EB4B279004E9FF3 /* DeviceRouting.swift in Sources */,
 				E251C2232EB4B29E004E9FF3 /* TelemetryEvents.swift in Sources */,
-                E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */,
-                E30000102EB4B10000000001 /* MDParser.swift in Sources */,
+				E30000032EB4000000000002 /* MarkdownViewer.swift in Sources */,
+				E30000102EB4B10000000001 /* MDParser.swift in Sources */,
 				E251C2262EB4B2AE004E9FF3 /* SensorQuarantine.swift in Sources */,
 				E251C21F2EB4B282004E9FF3 /* SensorNormalization.swift in Sources */,
-                E30000122EB4B10000000003 /* MDView.swift in Sources */,
+				E30000122EB4B10000000003 /* MDView.swift in Sources */,
 				E2606BF52EB26B1000244947 /* CPUMetricsCalculator.swift in Sources */,
 				E2606BFA2EB26E0000244947 /* SystemMetricsReader.swift in Sources */,
 				E2TEMPBF12EB26EAA00244947 /* TemperatureProvider.swift in Sources */,
@@ -503,9 +527,9 @@
 				39DED65E8976D174C114842B /* SystemInfoReader.swift in Sources */,
 				E251C2272EB4B2B3004E9FF3 /* FeatureFlags.swift in Sources */,
 				E251C2292EB4B2BE004E9FF3 /* HelperXPC.swift in Sources */,
-				E5A0000F2F0000010000000F /* TemperatureProviderCatalogBacked.swift in Sources */,
-				E5A000102F00000100000010 /* ProviderFactory.swift in Sources */,
-				E5A000112F00000100000011 /* PowermetricsSensorsProvider.swift in Sources */
+				1E65B33B700FC6F2CC5FB854 /* PermissionManager.swift in Sources */,
+				E77B411E54621E8E40E69988 /* SmartDiskMonitor.swift in Sources */,
+				02D07D0D05EB1A3CD334A50C /* DiskHealthView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,9 +541,9 @@
 				E2606BF62EB26B3A00244947 /* CPUMetricsTests.swift in Sources */,
 				E2606BF92EB26C2C00244947 /* SystemMonitorCPUTests.swift in Sources */,
 				E2606C042EB26D8000244947 /* CPULayoutTests.swift in Sources */,
-                E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */,
-                E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */,
-                E30000162EB4B30000000007 /* MDParserTests.swift in Sources */,
+				E30000082EB4A10000000001 /* MarkdownViewerTests.swift in Sources */,
+				E30000092EB4A10000000002 /* MarkdownBDDTests.swift in Sources */,
+				E30000162EB4B30000000007 /* MDParserTests.swift in Sources */,
 				E5B000012F00010100000001 /* SensorCatalogTests.swift in Sources */,
 				E5B000022F00010100000002 /* SensorNormalizationTests.swift in Sources */,
 				E5B000032F00010100000003 /* DeviceRoutingTests.swift in Sources */,
@@ -535,6 +559,9 @@
 				E5B0000D2F0001010000000D /* SmartNvmeReaderTests.swift in Sources */,
 				E5B0000E2F0001010000000E /* HelperXPCTests.swift in Sources */,
 				E5B0000F2F0001010000000F /* CoverageMetricsTests.swift in Sources */,
+				FEB4F41C103DC0904E586FBB /* PermissionDetectionTests.swift in Sources */,
+				C6BC58749D4AF9647A76C76B /* FDADiagnosticTests.swift in Sources */,
+				EEABF902F2BCE050A0E90A28 /* SmartMonitoringTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -683,7 +710,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Coreveo/Preview Content\"";
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Coreveo/Info.plist;
@@ -713,12 +740,12 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"Coreveo/Preview Content\"";
-				ENABLE_APP_SANDBOX = YES;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = Coreveo/Info.plist;
+			DEAD_CODE_STRIPPING = YES;
+			DEVELOPMENT_ASSET_PATHS = "\"Coreveo/Preview Content\"";
+			ENABLE_APP_SANDBOX = NO;
+			ENABLE_PREVIEWS = YES;
+			GENERATE_INFOPLIST_FILE = NO;
+			INFOPLIST_FILE = Coreveo/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

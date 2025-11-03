@@ -38,7 +38,7 @@ struct PermissionsSettingsView: View {
                     
                     PermissionRowView(
                         title: "Full Disk Access",
-                        description: "Required for disk monitoring and S.M.A.R.T. data",
+                        description: "Required for disk health (S.M.A.R.T.) monitoring - tracks disk temperature, wear level, and health status",
                         icon: "externaldrive.fill",
                         isGranted: fullDiskAccessGranted,
                         onRequest: {
@@ -71,82 +71,13 @@ struct PermissionsSettingsView: View {
     }
     
     private func checkAccessibilityPermission() -> Bool {
-        // Method 1: Standard check
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
-        let isTrusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        
-        if isTrusted {
-            return true
-        }
-        
-        // Method 2: Try to create an accessibility element
-        let appElement = AXUIElementCreateApplication(NSRunningApplication.current.processIdentifier)
-        var value: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(appElement, kAXRoleAttribute as CFString, &value)
-        if result == .success {
-            return true
-        }
-        
-        // Method 3: System-wide element capability check
-        let systemWideElement = AXUIElementCreateSystemWide()
-        var focusedApp: CFTypeRef?
-        let systemWideResult = AXUIElementCopyAttributeValue(systemWideElement,
-                                                             kAXFocusedApplicationAttribute as CFString,
-                                                             &focusedApp)
-        if systemWideResult == .success {
-            return true
-        }
-        
-        // Method 4: Check if we can access window information
-        if let windowList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) {
-            let windows = windowList as? [[String: Any]] ?? []
-            if !windows.isEmpty {
-                return true
-            }
-        }
-        
-        return false
+        // Use PermissionManager for consistent accessibility detection
+        return PermissionManager.shared.checkAccessibilityPermission()
     }
     
     private func checkFullDiskAccessPermission() -> Bool {
-        let fileManager = FileManager.default
-        
-        guard let realHome = getRealHomeDirectory() else {
-            return false
-        }
-        
-        let protectedPaths = [
-            "\(realHome)/Library/Mail/V2/MailData",
-            "\(realHome)/Library/Safari",
-            "\(realHome)/Library/Calendars",
-            "\(realHome)/Library/Application Support/com.apple.sharedfilelist",
-            "\(realHome)/Library/Keychains",
-            "\(realHome)/Library/Application Support/com.apple.TCC",
-            "/private/var/log/system.log"
-        ]
-        
-        for path in protectedPaths {
-            guard fileManager.fileExists(atPath: path) else {
-                continue
-            }
-            
-            do {
-                var isDirectory: ObjCBool = false
-                if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
-                    if isDirectory.boolValue {
-                        _ = try fileManager.contentsOfDirectory(atPath: path)
-                        return true
-                    } else {
-                        _ = try fileManager.attributesOfItem(atPath: path)
-                        return true
-                    }
-                }
-            } catch {
-                // Permission denied - continue checking other paths
-            }
-        }
-        
-        return false
+        // Use PermissionManager for consistent, accurate FDA detection
+        return PermissionManager.shared.checkFullDiskAccessPermission()
     }
     
     private func getRealHomeDirectory() -> String? {

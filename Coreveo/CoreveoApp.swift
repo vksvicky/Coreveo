@@ -106,19 +106,13 @@ struct CoreveoApp: App {
     private func arePermissionsAlreadyGranted() -> Bool {
         NSLog("[App] Checking permissions...")
         
-        // Required permissions for basic system monitoring
-        let isAccessibilityGranted = checkAccessibilityPermission()
-        let isFullDiskAccessGranted = checkFullDiskAccessPermission()
+        // Use PermissionManager for consistent permission checking
+        let status = PermissionManager.shared.getPermissionStatus()
         
-        // Network permission is not required for basic system monitoring
-        // (only needed if we ship Network Extension components, which we don't)
-        let isNetworkGranted = checkNetworkPermission()
-        
-        NSLog("[App] Permission check - Accessibility: \(isAccessibilityGranted), Full Disk Access: \(isFullDiskAccessGranted), Network: \(isNetworkGranted) (not required)")
+        NSLog("[App] Permission check - Accessibility: \(status.hasAccessibility), Full Disk Access: \(status.hasFullDiskAccess)")
         
         // Only require Accessibility and Full Disk Access for basic functionality
-        // Network permission is optional and treated as granted if not applicable
-        return isAccessibilityGranted && isFullDiskAccessGranted
+        return status.hasAllRequiredPermissions
     }
 
     private func runPermissionDiagnostics() {
@@ -183,156 +177,13 @@ struct CoreveoApp: App {
     }
     
     private func checkAccessibilityPermission() -> Bool {
-        NSLog("[App] Starting Accessibility permission check...")
-        
-        // Method 1: Standard check
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): false]
-        let isTrusted = AXIsProcessTrustedWithOptions(options as CFDictionary)
-        NSLog("[App] Accessibility standard check: \(isTrusted)")
-        
-        if isTrusted {
-            NSLog("[App] ✅ Accessibility permission GRANTED (standard check)")
-            return true
-        }
-        
-        // Method 2: Try to create an accessibility element (works in sandboxed apps when granted)
-        let appElement = AXUIElementCreateApplication(NSRunningApplication.current.processIdentifier)
-        var value: CFTypeRef?
-        let result = AXUIElementCopyAttributeValue(appElement, kAXRoleAttribute as CFString, &value)
-        if result == .success {
-            NSLog("[App] ✅ Accessibility permission GRANTED (element creation)")
-            return true
-        } else {
-            NSLog("[App] ❌ Accessibility element creation: FAILED (\(result.rawValue))")
-        }
-        
-        // Method 2b: System-wide element capability check
-        // If we can query the focused application from the system-wide AX element,
-        // accessibility is effectively granted.
-        let systemWideElement = AXUIElementCreateSystemWide()
-        var focusedApp: CFTypeRef?
-        let systemWideResult = AXUIElementCopyAttributeValue(systemWideElement,
-                                                             kAXFocusedApplicationAttribute as CFString,
-                                                             &focusedApp)
-        if systemWideResult == .success {
-            NSLog("[App] ✅ Accessibility permission GRANTED (system-wide focused app)")
-            return true
-        } else {
-            NSLog("[App] ❌ System-wide AX check failed (code \(systemWideResult.rawValue))")
-        }
-        
-        // Method 3: Check if we can access window information
-        if let windowList = CGWindowListCopyWindowInfo(.optionOnScreenOnly, kCGNullWindowID) {
-            let windows = windowList as? [[String: Any]] ?? []
-            NSLog("[App] Accessibility window access: \(windows.count) windows visible")
-            // If we can see window info, we likely have accessibility
-            if !windows.isEmpty {
-                NSLog("[App] ✅ Accessibility permission GRANTED (window access)")
-                return true
-            }
-        }
-        
-        NSLog("[App] ❌ Accessibility permission NOT GRANTED (all methods failed)")
-        return false
+        // Delegate to PermissionManager for consistent checking
+        return PermissionManager.shared.checkAccessibilityPermission()
     }
     
     private func checkFullDiskAccessPermission() -> Bool {
-        NSLog("[App] Checking Full Disk Access...")
-        
-        let fileManager = FileManager.default
-        
-        // Get the REAL user home directory using getpwuid (not the sandboxed one)
-        guard let realHome = CoreveoApp.getRealHomeDirectory() else {
-            NSLog("[App] ⚠️ Could not determine real home directory")
-            return false
-        }
-        
-        NSLog("[App] Real home directory: \(realHome)")
-        NSLog("[App] Sandbox home directory: \(NSHomeDirectory())")
-        
-        // Test multiple protected paths - only need one to succeed
-        // Try more reliable paths that are more likely to exist
-        let protectedPaths = [
-            "\(realHome)/Library/Mail/V2/MailData",       // Mail data - requires FDA (more specific)
-            "\(realHome)/Library/Safari",                  // Safari data - requires FDA
-            "\(realHome)/Library/Calendars",               // Calendar data - requires FDA
-            "\(realHome)/Library/Application Support/com.apple.sharedfilelist", // Shared file lists - requires FDA
-            "\(realHome)/Library/Keychains",               // Keychains - requires FDA
-            "\(realHome)/Library/Application Support/com.apple.TCC", // TCC database - requires FDA
-            "/private/var/log/system.log"                   // System log - requires FDA (absolute path)
-        ]
-        
-        for path in protectedPaths {
-            NSLog("[App] Testing FDA path: \(path)")
-            
-            // Check if path exists first
-            guard fileManager.fileExists(atPath: path) else {
-                NSLog("[App]   Path doesn't exist (skipping)")
-                continue
-            }
-            
-            do {
-                // Try to read directory contents or file attributes
-                var isDirectory: ObjCBool = false
-                if fileManager.fileExists(atPath: path, isDirectory: &isDirectory) {
-                    if isDirectory.boolValue {
-                        let contents = try fileManager.contentsOfDirectory(atPath: path)
-                        NSLog("[App] ✅ Full Disk Access GRANTED - accessed directory \(path) (\(contents.count) items)")
-                        return true
-                    } else {
-                        // It's a file, try to read attributes
-                        _ = try fileManager.attributesOfItem(atPath: path)
-                        NSLog("[App] ✅ Full Disk Access GRANTED - accessed file \(path)")
-                return true
-            }
-        }
-            } catch let error as NSError {
-                NSLog("[App]   ❌ Access denied: \(error.domain) code:\(error.code) - \(error.localizedDescription)")
-                
-                // Check for specific permission denied errors
-                // NSCocoaErrorDomain 257 = NSFileReadNoPermissionError
-                // NSCocoaErrorDomain 513 = NSFileWriteNoPermissionError  
-                // NSPOSIXErrorDomain 13 = Permission denied
-                if (error.domain == NSCocoaErrorDomain && (error.code == 257 || error.code == 513)) ||
-                   (error.domain == NSPOSIXErrorDomain && error.code == 13) {
-                    NSLog("[App]   This is a permission denied error (expected without FDA)")
-                } else {
-                    // Other errors might indicate permission denied too
-                    NSLog("[App]   Unexpected error - might indicate permission denied")
-                }
-            }
-        }
-        
-        NSLog("[App] ❌ Full Disk Access NOT GRANTED - could not access any protected paths")
-        return false
-    }
-
-    private func checkNetworkPermission() -> Bool {
-        // Mirrors onboarding logic: if we don't bundle any Network Extension
-        // components, then permission is not required → treat as granted.
-        let fileManager = FileManager.default
-        var hasNetworkExtensions = false
-        
-        if let pluginsURL = Bundle.main.builtInPlugInsURL,
-           let pluginItems = try? fileManager.contentsOfDirectory(
-               at: pluginsURL,
-               includingPropertiesForKeys: nil,
-               options: [.skipsHiddenFiles]
-           ) {
-            if pluginItems.contains(where: { $0.pathExtension == "appex" }) {
-                hasNetworkExtensions = true
-            }
-        }
-        
-        let systemExtensionsPath = (Bundle.main.bundlePath as NSString)
-            .appendingPathComponent("Contents/Library/SystemExtensions")
-        if fileManager.fileExists(atPath: systemExtensionsPath) {
-            hasNetworkExtensions = true
-        }
-        
-        // If no NE components, treat as granted; otherwise, require user action
-        let granted = !hasNetworkExtensions ? true : false
-        return granted
+        // Delegate to PermissionManager for consistent checking
+        return PermissionManager.shared.checkFullDiskAccessPermission()
     }
     
 }

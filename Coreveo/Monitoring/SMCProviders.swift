@@ -56,9 +56,6 @@ struct SystemSMCClient: SMCClient {
             IOObjectRelease(entry)
             entry = IOIteratorNext(iterator)
         }
-        if result.isEmpty {
-            NSLog("[Coreveo] IOHWSensor discovered no temperature-like sensors")
-        }
         return result.isEmpty ? nil : result
     }
 
@@ -120,11 +117,6 @@ struct SystemSMCClient: SMCClient {
         discoverGPUs(using: tryRead)
         discoverCommonSensors(using: tryRead)
         
-        if !readings.isEmpty {
-            NSLog("[Coreveo] SMC keys discovered: \(readings.count) → \(Array(readings.keys).sorted())")
-        } else {
-            NSLog("[Coreveo] SMC keys discovered none (AppleSMC not accessible?)")
-        }
         return readings.isEmpty ? nil : readings
     }
     
